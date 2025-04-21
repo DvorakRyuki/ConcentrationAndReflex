@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novela Visual - Simulador de Citas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #1e1e2f;
+      color: white;
+    }
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .scene {
+      width: 100%;
+      max-width: 800px;
+      background-color: #2e2e3e;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      padding: 20px;
+    }
+    .character-name {
+      font-size: 1.5em;
+      color: #ff79c6;
+      margin-bottom: 10px;
+    }
+    .dialogue-text {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .choices {
+      display: flex;
+      flex-direction: column;
+    }
+    .choice-button {
+      background-color: #ff79c6;
+      border: none;
+      color: white;
+      font-size: 1em;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .choice-button:hover {
+      background-color: #ff5fa5;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="scene">
+    <div class="character-name" id="characterName"></div>
+    <div class="dialogue-text" id="dialogueText"></div>
+    <div class="choices" id="choicesContainer"></div>
+  </div>
+</div>
+
+<script>
+const story = {
+  luna: {
+    name: "Luna",
+    scenes: [
+      {
+        text: "Hola, soy Luna. ¿Te gusta observar las estrellas?",
+        choices: [
+          { text: "Sí, me encanta", next: 1, points: 2 },
+          { text: "Prefiero el sol", next: 1, points: 0 },
+          { text: "No me interesan", next: 1, points: -2 }
+        ]
+      },
+      {
+        text: "Me gustaría mostrarte mi telescopio algún día.",
+        choices: [
+          { text: "¡Me encantaría!", next: 2, points: 2 },
+          { text: "Tal vez otro día...", next: 2, points: 0 }
+        ]
+      },
+      {
+        text: "¿Te gustaría acompañarme esta noche para ver la luna llena?",
+        choices: [
+          { text: "Claro que sí", next: "goodEnding", points: 2 },
+          { text: "Tengo otros planes", next: "badEnding", points: -2 }
+        ]
+      }
+    ],
+    friendship: 0,
+    endings: {
+      goodEnding: "Pasaste una noche mágica junto a Luna observando las estrellas. 🌌",
+      badEnding: "Luna se va sola. Quizá en otro momento... 🌙"
+    }
+  }
+};
+
+let currentCharacter = story.luna;
+let currentSceneIndex = 0;
+
+const characterNameEl = document.getElementById("characterName");
+const dialogueTextEl = document.getElementById("dialogueText");
+const choicesContainerEl = document.getElementById("choicesContainer");
+
+function renderScene() {
+  const scene = currentCharacter.scenes[currentSceneIndex];
+  characterNameEl.textContent = currentCharacter.name;
+  dialogueTextEl.textContent = scene.text;
+  choicesContainerEl.innerHTML = "";
+
+  scene.choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.textContent = choice.text;
+    btn.className = "choice-button";
+    btn.onclick = () => {
+      currentCharacter.friendship += choice.points;
+      if (typeof choice.next === 'string') {
+        renderEnding(choice.next);
+      } else {
+        currentSceneIndex = choice.next;
+        renderScene();
+      }
+    };
+    choicesContainerEl.appendChild(btn);
+  });
+}
+
+function renderEnding(type) {
+  characterNameEl.textContent = currentCharacter.name;
+  dialogueTextEl.textContent = currentCharacter.endings[type];
+  choicesContainerEl.innerHTML = '<button class="choice-button" onclick="restartGame()">Volver a jugar</button>';
+}
+
+function restartGame() {
+  currentCharacter.friendship = 0;
+  currentSceneIndex = 0;
+  renderScene();
+}
+
+renderScene();
+</script>
+</body>
+</html>
