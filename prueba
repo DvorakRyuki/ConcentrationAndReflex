@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Ultra Zigger</title>
+  <title>🌟 ULTRA ZIGGER 🌟</title>
   <style>
+    /* ESTILOS GENERALES */
     body {
       margin: 0;
       overflow: hidden;
@@ -19,6 +20,71 @@
       transition: background-color 0.5s;
     }
 
+    /* PANTALLA DE INICIO */
+    #start-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      text-align: center;
+    }
+
+    #start-button {
+      padding: 15px 30px;
+      font-size: 24px;
+      background: linear-gradient(to bottom, #00aa00, #007700);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #start-button:hover {
+      transform: scale(1.1);
+      background: linear-gradient(to bottom, #00cc00, #009900);
+    }
+
+    /* PANTALLA DE GAME OVER */
+    #game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      text-align: center;
+    }
+
+    #restart-button {
+      padding: 15px 30px;
+      font-size: 24px;
+      background: linear-gradient(to bottom, #aa0000, #770000);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #restart-button:hover {
+      transform: scale(1.1);
+      background: linear-gradient(to bottom, #cc0000, #990000);
+    }
+
+    /* INTERFAZ DE JUEGO */
     h1#score {
       position: absolute;
       top: 20px;
@@ -34,6 +100,27 @@
       border: 2px solid #00ff00;
     }
 
+    #timer {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      color: #ff5555;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px 10px;
+      border-radius: 5px;
+      z-index: 1000;
+    }
+
+    #lives-display {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      z-index: 1000;
+    }
+
+    /* OBJETIVOS (TARGETS) */
     .target, .bonus, .trap, .powerup {
       position: absolute;
       width: 110px;
@@ -68,6 +155,7 @@
       animation: fadeIn 0.3s forwards, floatY 2s ease-in-out infinite alternate, pulse 1s ease-in-out infinite alternate;
     }
 
+    /* ANIMACIONES */
     @keyframes fadeIn {
       to { opacity: 1; }
     }
@@ -92,6 +180,7 @@
       100% { transform: scale(1.1); }
     }
 
+    /* EFECTO DE EXPLOSIÓN */
     .explosion {
       position: absolute;
       width: 100px;
@@ -107,6 +196,7 @@
       to { opacity: 0; transform: scale(1.5); }
     }
 
+    /* LEVEL UP ANIMATION */
     #level-up {
       position: fixed;
       top: 50%;
@@ -127,18 +217,7 @@
       100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
     }
 
-    #timer {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 24px;
-      color: #ff5555;
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 5px 10px;
-      border-radius: 5px;
-      z-index: 1000;
-    }
-
+    /* COMBO DISPLAY */
     #combo-display {
       position: absolute;
       font-size: 24px;
@@ -148,6 +227,13 @@
       animation: pop 0.5s;
     }
 
+    @keyframes pop {
+      0% { transform: scale(0.5); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* OBSTÁCULOS MÓVILES */
     .moving-obstacle {
       position: absolute;
       width: 200px;
@@ -158,94 +244,12 @@
       animation: moveAcross 5s linear infinite;
     }
 
-    #lives-display {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      font-size: 24px;
-      z-index: 1000;
-    }
-
-    #start-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.9);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-
-    #start-button {
-      padding: 15px 30px;
-      font-size: 24px;
-      background: linear-gradient(to bottom, #00aa00, #007700);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    #start-button:hover {
-      transform: scale(1.1);
-      background: linear-gradient(to bottom, #00cc00, #009900);
-    }
-
-    #game-over-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.9);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-
-    #restart-button {
-      padding: 15px 30px;
-      font-size: 24px;
-      background: linear-gradient(to bottom, #aa0000, #770000);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    #restart-button:hover {
-      transform: scale(1.1);
-      background: linear-gradient(to bottom, #cc0000, #990000);
-    }
-
-    .high-scores {
-      margin: 20px 0;
-      font-size: 20px;
-    }
-
-    .high-scores ol {
-      text-align: left;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0.5); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
-
     @keyframes moveAcross {
       0% { left: -200px; }
       100% { left: 100%; }
     }
 
+    /* MODO FRENÉTICO */
     body.frenzy {
       background-color: #ff0000;
       animation: frenzyBackground 0.5s infinite alternate;
@@ -255,43 +259,163 @@
       0% { background-color: #ff0000; }
       100% { background-color: #ff6600; }
     }
+
+    /* JEFE FINAL */
+    .boss {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 900;
+      animation: bossEntrance 1s forwards, bossFloat 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes bossEntrance {
+      from { transform: translate(-50%, -150%); }
+      to { transform: translate(-50%, -50%); }
+    }
+
+    @keyframes bossFloat {
+      0% { transform: translate(-50%, -50%) rotate(-5deg); }
+      100% { transform: translate(-50%, -50%) rotate(5deg); }
+    }
+
+    .health-bar {
+      position: absolute;
+      bottom: -30px;
+      width: 100%;
+      height: 10px;
+      background-color: #333;
+      border-radius: 5px;
+    }
+
+    .health-fill {
+      height: 100%;
+      background-color: #ff0000;
+      border-radius: 5px;
+      width: 100%;
+      transition: width 0.3s;
+    }
+
+    /* LOGROS */
+    .achievement-popup {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(to right, #ffd700, #ffaa00);
+      color: #000;
+      padding: 15px;
+      border-radius: 10px;
+      z-index: 2000;
+      animation: slideUp 2s forwards;
+    }
+
+    @keyframes slideUp {
+      0% { bottom: -100px; opacity: 0; }
+      20% { bottom: 20px; opacity: 1; }
+      80% { bottom: 20px; opacity: 1; }
+      100% { bottom: -100px; opacity: 0; }
+    }
+
+    /* TIENDA DE MEJORAS */
+    #upgrade-menu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 2000;
+      display: none;
+      text-align: center;
+    }
+
+    .upgrade {
+      margin: 10px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
+
+    .buy-btn {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .buy-btn:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
+  <!-- PANTALLA DE INICIO -->
   <div id="start-screen">
-    <h1>Ultra Zigger v1.1</h1>
+    <h1>🌟 ULTRA ZIGGER 🌟</h1>
     <button id="start-button">Comenzar</button>
     <div class="instructions">
-      <p>Haz clic en los objetivos para ganar puntos</p>
-      <p>Los bonus (alien) dan 5 puntos</p>
-      <p>¡Evita las trampas (imagen en blanco y negro)!</p>
-      <p>Atrapa los power-ups (iconos brillantes) para habilidades especiales</p>
+      <p>¡Haz clic en los objetivos para ganar puntos!</p>
+      <p>⚠️ <strong>Bonus (+5 pts)</strong> | <strong>Trampas (-2 pts)</strong> | <strong>Power-ups (habilidades)</strong></p>
+      <p>🔹 <strong>Combos</strong> multiplican tus puntos</p>
+      <p>🔥 <strong>Modo Frenético</strong> activa bonus</p>
     </div>
   </div>
 
+  <!-- PANTALLA DE GAME OVER -->
   <div id="game-over-screen">
     <h1>¡GAME OVER!</h1>
     <h2 id="final-score">Puntuación: 0</h2>
     <div class="high-scores">
-      <h3>Mejores Puntuaciones</h3>
+      <h3>🏆 Mejores Puntuaciones</h3>
       <ol id="high-scores-list"></ol>
     </div>
     <button id="restart-button">Jugar de Nuevo</button>
   </div>
 
+  <!-- INTERFAZ DE JUEGO -->
   <h1 id="score">Puntos: 0 | Nivel: 1</h1>
   <div id="timer">Próximo: 0s</div>
   <div id="lives-display">❤️❤️❤️</div>
   <div id="level-up" style="display: none;">¡LEVEL UP!</div>
   <div id="combo-display"></div>
+  <div id="achievement-popup" class="achievement-popup" style="display: none;"></div>
 
+  <!-- TIENDA DE MEJORAS -->
+  <div id="upgrade-menu">
+    <h2>🛒 Tienda de Mejoras</h2>
+    <div class="upgrade" data-upgrade="doublePoints">
+      <h3>Puntos Dobles</h3>
+      <p>Nivel: <span class="level">0</span>/3</p>
+      <button class="buy-btn" data-cost="100">Comprar (100)</button>
+    </div>
+    <div class="upgrade" data-upgrade="extraLife">
+      <h3>Vida Extra</h3>
+      <p>Nivel: <span class="level">0</span>/5</p>
+      <button class="buy-btn" data-cost="150">Comprar (150)</button>
+    </div>
+    <button id="close-upgrade-menu">Cerrar</button>
+  </div>
+
+  <!-- AUDIOS -->
   <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3"></audio>
   <audio id="bonus-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-bonus-earned-in-video-game-2058.mp3"></audio>
   <audio id="trap-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3"></audio>
   <audio id="powerup-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3"></audio>
+  <audio id="boss-music" src="https://assets.mixkit.co/music/preview/mixkit-epic-arena-2983.mp3"></audio>
 
+  <!-- SCRIPT DEL JUEGO -->
   <script>
-    // Elementos del DOM
+    // ELEMENTOS DEL DOM
     const scoreEl = document.getElementById("score");
     const timerEl = document.getElementById("timer");
     const levelUpEl = document.getElementById("level-up");
@@ -303,8 +427,11 @@
     const restartButton = document.getElementById("restart-button");
     const finalScoreEl = document.getElementById("final-score");
     const highScoresList = document.getElementById("high-scores-list");
+    const achievementPopup = document.getElementById("achievement-popup");
+    const upgradeMenu = document.getElementById("upgrade-menu");
+    const closeUpgradeMenu = document.getElementById("close-upgrade-menu");
 
-    // Variables del juego
+    // VARIABLES DEL JUEGO
     let score = 0;
     let level = 1;
     let lives = 3;
@@ -321,14 +448,15 @@
     let frenzyMode = false;
     let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
 
-    // Imágenes
+    // IMÁGENES
     const imageNormal = 'https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0';
     const imageBonus = 'https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif';
     const imageTrap = 'https://static01.nyt.com/images/2020/05/27/us/27georgefloyd/27georgefloyd-videoSixteenByNineJumbo1600.jpg';
     const imageFreeze = 'https://dab57h0r8ahff.cloudfront.net/444493/uploads/c3fa2ea0-a5b8-11ea-9b80-23cb8c39deaf_800_420.png';
     const imageFrenzy = 'https://beater.gr/wp-content/uploads/2020/05/funny-weird-wtf-stock-photos-beatergr-41-585x390.jpg';
+    const imageBoss = 'https://media.tenor.com/jJtTtaMOnNYAAAAM/ryan-gosling-burp.gif'; // Reemplaza con una imagen de jefe
 
-    // Power-ups
+    // POWER-UPS
     const powerUps = {
       freeze: {
         image: imageFreeze,
@@ -351,7 +479,20 @@
       }
     };
 
-    // Inicialización del juego
+    // MEJORAS
+    const upgrades = {
+      doublePoints: { level: 0, maxLevel: 3, cost: 100, effect: "Duplica los puntos" },
+      extraLife: { level: 0, maxLevel: 5, cost: 150, effect: "Añade una vida extra" }
+    };
+
+    // LOGROS
+    const achievements = {
+      firstClick: { unlocked: false, name: "Primer Click!", desc: "Haz tu primer click" },
+      comboMaster: { unlocked: false, name: "Combo Master", desc: "Alcanza un combo de 5x" },
+      bossDefeater: { unlocked: false, name: "Cazajefes", desc: "Derrota a un jefe" }
+    };
+
+    // INICIALIZACIÓN DEL JUEGO
     function initGame() {
       score = 0;
       level = 1;
@@ -368,10 +509,10 @@
       document.body.className = "";
       
       // Limpiar objetivos existentes
-      document.querySelectorAll('.target, .bonus, .trap, .powerup, .moving-obstacle').forEach(el => el.remove());
+      document.querySelectorAll('.target, .bonus, .trap, .powerup, .moving-obstacle, .boss').forEach(el => el.remove());
     }
 
-    // Función para crear explosión
+    // FUNCIÓN PARA CREAR EXPLOSIÓN
     function createExplosion(x, y) {
       const explosion = document.createElement("div");
       explosion.classList.add("explosion");
@@ -384,7 +525,7 @@
       }, 500);
     }
 
-    // Función para activar modo frenético
+    // ACTIVAR MODO FRENÉTICO
     function activateFrenzyMode() {
       frenzyMode = true;
       document.body.classList.add("frenzy");
@@ -394,7 +535,7 @@
       }, 10000);
     }
 
-    // Función para mostrar subida de nivel
+    // MOSTRAR SUBIDA DE NIVEL
     function showLevelUp() {
       levelUpEl.style.display = "block";
       levelUpEl.style.animation = "none";
@@ -406,14 +547,14 @@
       }, 2000);
     }
 
-    // Función para actualizar el temporizador
+    // ACTUALIZAR TEMPORIZADOR
     function updateTimer() {
       const now = Date.now();
       const timeLeft = Math.max(0, Math.floor((lastSpawnTime + spawnInterval - now) / 1000));
       timerEl.textContent = `Próximo: ${timeLeft}s`;
     }
 
-    // Función para spawnear objetivos
+    // SPAWNEAR OBJETIVOS
     function spawn(type = "normal") {
       const target = document.createElement("div");
       let points = 1;
@@ -440,7 +581,7 @@
         target.style.backgroundImage = `url('${imageNormal}')`;
       }
 
-      // Objetivos más pequeños en niveles altos
+      // OBJETIVOS MÁS PEQUEÑOS EN NIVELES ALTOS
       if (level > 5) {
         target.style.width = `${110 - level * 2}px`;
         target.style.height = `${80 - level * 2}px`;
@@ -453,7 +594,7 @@
       target.style.top = `${y}px`;
 
       target.addEventListener("mouseenter", () => {
-        // Sonidos
+        // SONIDOS
         if (type === "bonus") {
           document.getElementById("bonus-sound").currentTime = 0;
           document.getElementById("bonus-sound").play();
@@ -468,7 +609,7 @@
           document.getElementById("click-sound").play();
         }
 
-        // Sistema de combo
+        // SISTEMA DE COMBO
         combo++;
         clearTimeout(comboTimeout);
         comboTimeout = setTimeout(() => {
@@ -485,14 +626,14 @@
           setTimeout(() => comboDisplay.textContent = "", 1000);
         }
 
-        // Aplicar puntos
+        // APLICAR PUNTOS
         if (type === "powerup") {
           powerUps[target.dataset.powerup].effect();
         } else {
           score += points * comboMultiplier;
           if (score < 0) score = 0;
 
-          // Subir de nivel cada 15 puntos
+          // SUBIR DE NIVEL CADA 15 PUNTOS
           const newLevel = Math.floor(score / 15) + 1;
           if (newLevel > level) {
             level = newLevel;
@@ -505,7 +646,7 @@
           scoreEl.textContent = `Puntos: ${score} | Nivel: ${level}`;
         }
 
-        // Manejar trampas
+        // MANEJAR TRAMPAS
         if (type === "trap") {
           lives--;
           updateLives();
@@ -527,12 +668,12 @@
       }, lifetime);
     }
 
-    // Función para spawnear power-ups
+    // SPAWNEAR POWER-UPS
     function spawnPowerUp() {
       spawn("powerup");
     }
 
-    // Función para spawnear obstáculos móviles
+    // SPAWNEAR OBSTÁCULOS MÓVILES
     function spawnMovingObstacle() {
       const obstacle = document.createElement("div");
       obstacle.classList.add("moving-obstacle");
@@ -547,12 +688,12 @@
       }, 10000);
     }
 
-    // Función para actualizar vidas
+    // ACTUALIZAR VIDAS
     function updateLives() {
       livesDisplay.textContent = "❤️".repeat(lives);
     }
 
-    // Función de game over
+    // GAME OVER
     function gameOver() {
       gameRunning = false;
       clearInterval(timerInterval);
@@ -560,14 +701,14 @@
       showGameOver();
     }
 
-    // Función para mostrar game over
+    // MOSTRAR GAME OVER
     function showGameOver() {
       finalScoreEl.textContent = `Puntuación: ${score}`;
       updateHighScoresList();
       gameOverScreen.style.display = "flex";
     }
 
-    // Función para guardar puntuación
+    // GUARDAR PUNTUACIÓN
     function saveScore() {
       highScores.push(score);
       highScores.sort((a, b) => b - a);
@@ -575,7 +716,7 @@
       localStorage.setItem('highScores', JSON.stringify(highScores));
     }
 
-    // Función para actualizar la lista de puntuaciones
+    // ACTUALIZAR LISTA DE PUNTUACIONES
     function updateHighScoresList() {
       highScoresList.innerHTML = "";
       highScores.forEach((score, index) => {
@@ -585,26 +726,93 @@
       });
     }
 
-    // Bucle principal del juego
+    // MOSTRAR LOGRO
+    function showAchievementPopup(name) {
+      achievementPopup.textContent = `🎉 Logro desbloqueado: ${name}!`;
+      achievementPopup.style.display = "block";
+      setTimeout(() => {
+        achievementPopup.style.display = "none";
+      }, 2000);
+    }
+
+    // SPAWNEAR JEFE FINAL
+    function spawnBoss() {
+      if (level % 5 === 0) {
+        gameRunning = false;
+        
+        const boss = document.createElement("div");
+        boss.className = "boss";
+        boss.style.backgroundImage = `url('${imageBoss}')`;
+        boss.dataset.health = 10;
+        
+        const healthBar = document.createElement("div");
+        healthBar.className = "health-bar";
+        const healthFill = document.createElement("div");
+        healthFill.className = "health-fill";
+        healthBar.appendChild(healthFill);
+        boss.appendChild(healthBar);
+        
+        boss.addEventListener("click", () => {
+          boss.dataset.health--;
+          healthFill.style.width = `${boss.dataset.health * 10}%`;
+          
+          if (boss.dataset.health <= 0) {
+            score += 50;
+            achievements.bossDefeater.unlocked = true;
+            showAchievementPopup(achievements.bossDefeater.name);
+            boss.remove();
+            gameRunning = true;
+            gameLoop();
+          }
+        });
+        
+        document.body.appendChild(boss);
+        document.getElementById("boss-music").play();
+      }
+    }
+
+    // MOSTRAR TIENDA DE MEJORAS
+    function showUpgradeMenu() {
+      Object.keys(upgrades).forEach(upgradeId => {
+        const upgradeEl = upgradeMenu.querySelector(`[data-upgrade="${upgradeId}"]`);
+        upgradeEl.querySelector('.level').textContent = upgrades[upgradeId].level;
+        upgradeEl.querySelector('.buy-btn').textContent = 
+          `Comprar (${upgrades[upgradeId].cost * (upgrades[upgradeId].level + 1)})`;
+      });
+      upgradeMenu.style.display = "block";
+    }
+
+    // COMPRAR MEJORA
+    function buyUpgrade(upgradeId) {
+      const cost = upgrades[upgradeId].cost * (upgrades[upgradeId].level + 1);
+      if (score >= cost && upgrades[upgradeId].level < upgrades[upgradeId].maxLevel) {
+        score -= cost;
+        upgrades[upgradeId].level++;
+        updateScoreDisplay();
+        showUpgradeMenu();
+      }
+    }
+
+    // BUCLE PRINCIPAL DEL JUEGO
     function gameLoop() {
       if (!gameRunning) return;
 
       const rand = Math.random();
       lastSpawnTime = Date.now();
 
-      // 20% probabilidad bonus
+      // 20% PROBABILIDAD BONUS
       if (rand < 0.20) {
         spawn("bonus");
       }
-      // 15% probabilidad trampa
+      // 15% PROBABILIDAD TRAMPA
       else if (rand < 0.35) {
         spawn("trap");
       }
-      // 5% probabilidad power-up
+      // 5% PROBABILIDAD POWER-UP
       else if (rand < 0.40) {
         spawnPowerUp();
       }
-      // normal
+      // NORMAL
       else {
         if (multipleTargets) {
           const targetsToSpawn = Math.min(1 + Math.floor(level / 2), 5);
@@ -616,9 +824,14 @@
         }
       }
 
-      // Obstáculos en niveles altos
+      // OBSTÁCULOS EN NIVELES ALTOS
       if (level > 3 && Math.random() < 0.1) {
         spawnMovingObstacle();
+      }
+
+      // JEFE FINAL CADA 5 NIVELES
+      if (level % 5 === 0) {
+        spawnBoss();
       }
 
       if (spawnInterval <= 400) {
@@ -628,7 +841,7 @@
       setTimeout(gameLoop, spawnInterval);
     }
 
-    // Event Listeners
+    // EVENT LISTENERS
     startButton.addEventListener("click", () => {
       startScreen.style.display = "none";
       initGame();
@@ -645,13 +858,17 @@
       timerInterval = setInterval(updateTimer, 100);
     });
 
-    // Ajustar tamaño al cambiar la ventana
+    closeUpgradeMenu.addEventListener("click", () => {
+      upgradeMenu.style.display = "none";
+    });
+
+    // AJUSTAR TAMAÑO AL CAMBIAR VENTANA
     window.addEventListener('resize', () => {
       screenWidth = window.innerWidth;
       screenHeight = window.innerHeight;
     });
 
-    // Mostrar pantalla de inicio
+    // MOSTRAR PANTALLA DE INICIO
     updateHighScoresList();
   </script>
 </body>
