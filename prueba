@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>🌟 ULTRA ZIGGER 🌟</title>
+  <title>🚀 Juego de Reflejos Ultra Mejorado 🚀</title>
   <style>
     /* ESTILOS GENERALES */
     body {
@@ -118,6 +118,15 @@
       left: 20px;
       font-size: 24px;
       z-index: 1000;
+    }
+
+    #coins-display {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      font-size: 24px;
+      z-index: 1000;
+      color: gold;
     }
 
     /* OBJETIVOS (TARGETS) */
@@ -324,7 +333,7 @@
     }
 
     /* TIENDA DE MEJORAS */
-    #upgrade-menu {
+    #shop-menu {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -335,13 +344,18 @@
       z-index: 2000;
       display: none;
       text-align: center;
+      width: 80%;
+      max-width: 500px;
     }
 
-    .upgrade {
+    .shop-item {
       margin: 10px;
       padding: 10px;
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .buy-btn {
@@ -356,18 +370,113 @@
     .buy-btn:hover {
       background-color: #45a049;
     }
+
+    .buy-btn:disabled {
+      background-color: #777;
+      cursor: not-allowed;
+    }
+
+    /* PASE DE BATALLA */
+    #battle-pass {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 2000;
+      display: none;
+      text-align: center;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    .battle-pass-tier {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
+
+    .tier-reward {
+      color: gold;
+    }
+
+    /* MENÚ DE SKINS */
+    #skins-menu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 2000;
+      display: none;
+      text-align: center;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    .skin-option {
+      width: 80px;
+      height: 80px;
+      margin: 10px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 5px;
+      transition: transform 0.2s;
+    }
+
+    .skin-option:hover {
+      transform: scale(1.1);
+      border-color: gold;
+    }
+
+    /* BOTONES DE MENÚ */
+    .menu-button {
+      position: absolute;
+      bottom: 20px;
+      padding: 10px 15px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: 1px solid #444;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    #shop-button {
+      right: 20px;
+    }
+
+    #battle-pass-button {
+      right: 120px;
+    }
+
+    #skins-button {
+      right: 220px;
+    }
   </style>
 </head>
 <body>
   <!-- PANTALLA DE INICIO -->
   <div id="start-screen">
-    <h1>🌟 ULTRA ZIGGER 🌟</h1>
+    <h1>🚀 Juego de Reflejos Ultra 🚀</h1>
     <button id="start-button">Comenzar</button>
     <div class="instructions">
       <p>¡Haz clic en los objetivos para ganar puntos!</p>
       <p>⚠️ <strong>Bonus (+5 pts)</strong> | <strong>Trampas (-2 pts)</strong> | <strong>Power-ups (habilidades)</strong></p>
       <p>🔹 <strong>Combos</strong> multiplican tus puntos</p>
       <p>🔥 <strong>Modo Frenético</strong> activa bonus</p>
+      <p>🛒 <strong>Tienda</strong> y <strong>Pase de Batalla</strong> disponibles</p>
     </div>
   </div>
 
@@ -386,24 +495,68 @@
   <h1 id="score">Puntos: 0 | Nivel: 1</h1>
   <div id="timer">Próximo: 0s</div>
   <div id="lives-display">❤️❤️❤️</div>
+  <div id="coins-display">💰: 0</div>
   <div id="level-up" style="display: none;">¡LEVEL UP!</div>
   <div id="combo-display"></div>
   <div id="achievement-popup" class="achievement-popup" style="display: none;"></div>
 
+  <!-- BOTONES DE MENÚ -->
+  <button id="shop-button" class="menu-button">🛒 Tienda</button>
+  <button id="battle-pass-button" class="menu-button">🏆 Pase de Batalla</button>
+  <button id="skins-button" class="menu-button">🎨 Skins</button>
+
   <!-- TIENDA DE MEJORAS -->
-  <div id="upgrade-menu">
+  <div id="shop-menu">
     <h2>🛒 Tienda de Mejoras</h2>
-    <div class="upgrade" data-upgrade="doublePoints">
-      <h3>Puntos Dobles</h3>
-      <p>Nivel: <span class="level">0</span>/3</p>
-      <button class="buy-btn" data-cost="100">Comprar (100)</button>
+    <div class="shop-item">
+      <div>
+        <h3>Vida Extra</h3>
+        <p>+1 ❤️</p>
+      </div>
+      <button class="buy-btn" data-upgrade="extraLife" data-cost="100">100 💰</button>
     </div>
-    <div class="upgrade" data-upgrade="extraLife">
-      <h3>Vida Extra</h3>
-      <p>Nivel: <span class="level">0</span>/5</p>
-      <button class="buy-btn" data-cost="150">Comprar (150)</button>
+    <div class="shop-item">
+      <div>
+        <h3>Puntos Dobles</h3>
+        <p>2x puntos por 30s</p>
+      </div>
+      <button class="buy-btn" data-upgrade="doublePoints" data-cost="150">150 💰</button>
     </div>
-    <button id="close-upgrade-menu">Cerrar</button>
+    <div class="shop-item">
+      <div>
+        <h3>Congelar Tiempo</h3>
+        <p>Detiene objetivos por 5s</p>
+      </div>
+      <button class="buy-btn" data-upgrade="freezeTime" data-cost="200">200 💰</button>
+    </div>
+    <button id="close-shop">Cerrar</button>
+  </div>
+
+  <!-- PASE DE BATALLA -->
+  <div id="battle-pass">
+    <h2>🏆 Pase de Batalla (Nivel <span id="bp-level">1</span>)</h2>
+    <div class="battle-pass-tier">
+      <span>Nivel 1: <span class="tier-reward">Skin Básica</span></span>
+      <button class="claim-btn" data-tier="1">Reclamar</button>
+    </div>
+    <div class="battle-pass-tier">
+      <span>Nivel 3: <span class="tier-reward">+100 💰</span></span>
+      <button class="claim-btn" data-tier="3">Reclamar</button>
+    </div>
+    <div class="battle-pass-tier">
+      <span>Nivel 5: <span class="tier-reward">Skin Épica</span></span>
+      <button class="claim-btn" data-tier="5">Reclamar</button>
+    </div>
+    <button id="close-battle-pass">Cerrar</button>
+  </div>
+
+  <!-- MENÚ DE SKINS -->
+  <div id="skins-menu">
+    <h2>🎨 Skins Disponibles</h2>
+    <div class="skin-option" data-skin="default" style="background-image: url('https://i.gifer.com/origin/9e/9e578407e529c3e5cc3c2a3f00d9a991_w200.gif')"></div>
+    <div class="skin-option" data-skin="alien" style="background-image: url('https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif')"></div>
+    <div class="skin-option" data-skin="epic" style="background-image: url('https://i.imgur.com/XYZ1234.png')"></div>
+    <button id="close-skins">Cerrar</button>
   </div>
 
   <!-- AUDIOS -->
@@ -421,6 +574,7 @@
     const levelUpEl = document.getElementById("level-up");
     const comboDisplay = document.getElementById("combo-display");
     const livesDisplay = document.getElementById("lives-display");
+    const coinsDisplay = document.getElementById("coins-display");
     const startScreen = document.getElementById("start-screen");
     const startButton = document.getElementById("start-button");
     const gameOverScreen = document.getElementById("game-over-screen");
@@ -428,12 +582,22 @@
     const finalScoreEl = document.getElementById("final-score");
     const highScoresList = document.getElementById("high-scores-list");
     const achievementPopup = document.getElementById("achievement-popup");
-    const upgradeMenu = document.getElementById("upgrade-menu");
-    const closeUpgradeMenu = document.getElementById("close-upgrade-menu");
+    const shopMenu = document.getElementById("shop-menu");
+    const shopButton = document.getElementById("shop-button");
+    const closeShop = document.getElementById("close-shop");
+    const battlePassMenu = document.getElementById("battle-pass");
+    const battlePassButton = document.getElementById("battle-pass-button");
+    const closeBattlePass = document.getElementById("close-battle-pass");
+    const bpLevelDisplay = document.getElementById("bp-level");
+    const skinsMenu = document.getElementById("skins-menu");
+    const skinsButton = document.getElementById("skins-button");
+    const closeSkins = document.getElementById("close-skins");
 
     // VARIABLES DEL JUEGO
     let score = 0;
+    let coins = 0;
     let level = 1;
+    let bpLevel = 1;
     let lives = 3;
     let spawnInterval = 2000;
     let multipleTargets = false;
@@ -447,6 +611,8 @@
     let comboTimeout;
     let frenzyMode = false;
     let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+    let claimedTiers = JSON.parse(localStorage.getItem('claimedTiers')) || [];
+    let currentSkin = 'default';
 
     // IMÁGENES
     const imageNormal = 'https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0';
@@ -479,10 +645,11 @@
       }
     };
 
-    // MEJORAS
+    // MEJORAS COMPRADAS
     const upgrades = {
-      doublePoints: { level: 0, maxLevel: 3, cost: 100, effect: "Duplica los puntos" },
-      extraLife: { level: 0, maxLevel: 5, cost: 150, effect: "Añade una vida extra" }
+      extraLife: { active: false },
+      doublePoints: { active: false, duration: 0 },
+      freezeTime: { active: false }
     };
 
     // LOGROS
@@ -495,7 +662,9 @@
     // INICIALIZACIÓN DEL JUEGO
     function initGame() {
       score = 0;
+      coins = 0;
       level = 1;
+      bpLevel = 1;
       lives = 3;
       spawnInterval = 2000;
       multipleTargets = false;
@@ -504,6 +673,7 @@
       frenzyMode = false;
       
       scoreEl.textContent = `Puntos: ${score} | Nivel: ${level}`;
+      coinsDisplay.textContent = `💰: ${coins}`;
       livesDisplay.textContent = "❤️❤️❤️";
       comboDisplay.textContent = "";
       document.body.className = "";
@@ -552,6 +722,94 @@
       const now = Date.now();
       const timeLeft = Math.max(0, Math.floor((lastSpawnTime + spawnInterval - now) / 1000));
       timerEl.textContent = `Próximo: ${timeLeft}s`;
+    }
+
+    // ACTUALIZAR MONEDAS
+    function updateCoins(amount) {
+      coins += amount;
+      coinsDisplay.textContent = `💰: ${coins}`;
+      updateShopButtons();
+    }
+
+    // COMPRAR MEJORA
+    function buyUpgrade(upgradeId, cost) {
+      if (coins >= cost) {
+        coins -= cost;
+        coinsDisplay.textContent = `💰: ${coins}`;
+        
+        switch (upgradeId) {
+          case 'extraLife':
+            lives++;
+            livesDisplay.textContent = "❤️".repeat(lives);
+            break;
+          case 'doublePoints':
+            upgrades.doublePoints.active = true;
+            upgrades.doublePoints.duration = 30;
+            setTimeout(() => {
+              upgrades.doublePoints.active = false;
+            }, 30000);
+            break;
+          case 'freezeTime':
+            upgrades.freezeTime.active = true;
+            document.querySelectorAll('.target, .bonus, .trap').forEach(target => {
+              target.style.animationPlayState = 'paused';
+            });
+            setTimeout(() => {
+              upgrades.freezeTime.active = false;
+              document.querySelectorAll('.target, .bonus, .trap').forEach(target => {
+                target.style.animationPlayState = 'running';
+              });
+            }, 5000);
+            break;
+        }
+        
+        updateShopButtons();
+      }
+    }
+
+    // ACTUALIZAR BOTONES DE LA TIENDA
+    function updateShopButtons() {
+      document.querySelectorAll('.buy-btn').forEach(btn => {
+        const cost = parseInt(btn.dataset.cost);
+        btn.disabled = coins < cost;
+      });
+    }
+
+    // RECLAMAR RECOMPENSA DEL PASE DE BATALLA
+    function claimTierReward(tier) {
+      if (bpLevel >= tier && !claimedTiers.includes(tier)) {
+        claimedTiers.push(tier);
+        localStorage.setItem('claimedTiers', JSON.stringify(claimedTiers));
+        
+        switch (tier) {
+          case 1:
+            // Skin básica ya está desbloqueada
+            break;
+          case 3:
+            updateCoins(100);
+            break;
+          case 5:
+            // Skin épica desbloqueada
+            break;
+        }
+        
+        updateBattlePassButtons();
+      }
+    }
+
+    // ACTUALIZAR BOTONES DEL PASE DE BATALLA
+    function updateBattlePassButtons() {
+      document.querySelectorAll('.claim-btn').forEach(btn => {
+        const tier = parseInt(btn.dataset.tier);
+        btn.disabled = bpLevel < tier || claimedTiers.includes(tier);
+        btn.textContent = claimedTiers.includes(tier) ? "✅ Reclamado" : "Reclamar";
+      });
+    }
+
+    // CAMBIAR SKIN
+    function changeSkin(skin) {
+      currentSkin = skin;
+      // Aquí podrías cambiar la imagen de los objetivos según la skin seleccionada
     }
 
     // SPAWNEAR OBJETIVOS
@@ -630,13 +888,18 @@
         if (type === "powerup") {
           powerUps[target.dataset.powerup].effect();
         } else {
-          score += points * comboMultiplier;
+          // Aplicar multiplicador de puntos dobles si está activo
+          const pointMultiplier = upgrades.doublePoints.active ? 2 : 1;
+          score += points * comboMultiplier * pointMultiplier;
+          updateCoins(points); // Ganar monedas por cada click
+          
           if (score < 0) score = 0;
 
           // SUBIR DE NIVEL CADA 15 PUNTOS
           const newLevel = Math.floor(score / 15) + 1;
           if (newLevel > level) {
             level = newLevel;
+            bpLevel = newLevel; // El pase de batalla sube con el nivel del juego
             if (spawnInterval > 400) {
               spawnInterval -= 150;
             }
@@ -693,6 +956,52 @@
       livesDisplay.textContent = "❤️".repeat(lives);
     }
 
+    // SPAWNEAR JEFE FINAL
+    function spawnBoss() {
+      if (level % 5 === 0) {
+        gameRunning = false;
+        
+        const boss = document.createElement("div");
+        boss.className = "boss";
+        boss.style.backgroundImage = `url('${imageBoss}')`;
+        boss.dataset.health = 10;
+        
+        const healthBar = document.createElement("div");
+        healthBar.className = "health-bar";
+        const healthFill = document.createElement("div");
+        healthFill.className = "health-fill";
+        healthBar.appendChild(healthFill);
+        boss.appendChild(healthBar);
+        
+        boss.addEventListener("click", () => {
+          boss.dataset.health--;
+          healthFill.style.width = `${boss.dataset.health * 10}%`;
+          
+          if (boss.dataset.health <= 0) {
+            score += 50;
+            updateCoins(50);
+            achievements.bossDefeater.unlocked = true;
+            showAchievementPopup(achievements.bossDefeater.name);
+            boss.remove();
+            gameRunning = true;
+            gameLoop();
+          }
+        });
+        
+        document.body.appendChild(boss);
+        document.getElementById("boss-music").play();
+      }
+    }
+
+    // MOSTRAR LOGRO
+    function showAchievementPopup(name) {
+      achievementPopup.textContent = `🎉 Logro desbloqueado: ${name}!`;
+      achievementPopup.style.display = "block";
+      setTimeout(() => {
+        achievementPopup.style.display = "none";
+      }, 2000);
+    }
+
     // GAME OVER
     function gameOver() {
       gameRunning = false;
@@ -724,73 +1033,6 @@
         li.textContent = `${index + 1}. ${score}`;
         highScoresList.appendChild(li);
       });
-    }
-
-    // MOSTRAR LOGRO
-    function showAchievementPopup(name) {
-      achievementPopup.textContent = `🎉 Logro desbloqueado: ${name}!`;
-      achievementPopup.style.display = "block";
-      setTimeout(() => {
-        achievementPopup.style.display = "none";
-      }, 2000);
-    }
-
-    // SPAWNEAR JEFE FINAL
-    function spawnBoss() {
-      if (level % 5 === 0) {
-        gameRunning = false;
-        
-        const boss = document.createElement("div");
-        boss.className = "boss";
-        boss.style.backgroundImage = `url('${imageBoss}')`;
-        boss.dataset.health = 10;
-        
-        const healthBar = document.createElement("div");
-        healthBar.className = "health-bar";
-        const healthFill = document.createElement("div");
-        healthFill.className = "health-fill";
-        healthBar.appendChild(healthFill);
-        boss.appendChild(healthBar);
-        
-        boss.addEventListener("click", () => {
-          boss.dataset.health--;
-          healthFill.style.width = `${boss.dataset.health * 10}%`;
-          
-          if (boss.dataset.health <= 0) {
-            score += 50;
-            achievements.bossDefeater.unlocked = true;
-            showAchievementPopup(achievements.bossDefeater.name);
-            boss.remove();
-            gameRunning = true;
-            gameLoop();
-          }
-        });
-        
-        document.body.appendChild(boss);
-        document.getElementById("boss-music").play();
-      }
-    }
-
-    // MOSTRAR TIENDA DE MEJORAS
-    function showUpgradeMenu() {
-      Object.keys(upgrades).forEach(upgradeId => {
-        const upgradeEl = upgradeMenu.querySelector(`[data-upgrade="${upgradeId}"]`);
-        upgradeEl.querySelector('.level').textContent = upgrades[upgradeId].level;
-        upgradeEl.querySelector('.buy-btn').textContent = 
-          `Comprar (${upgrades[upgradeId].cost * (upgrades[upgradeId].level + 1)})`;
-      });
-      upgradeMenu.style.display = "block";
-    }
-
-    // COMPRAR MEJORA
-    function buyUpgrade(upgradeId) {
-      const cost = upgrades[upgradeId].cost * (upgrades[upgradeId].level + 1);
-      if (score >= cost && upgrades[upgradeId].level < upgrades[upgradeId].maxLevel) {
-        score -= cost;
-        upgrades[upgradeId].level++;
-        updateScoreDisplay();
-        showUpgradeMenu();
-      }
     }
 
     // BUCLE PRINCIPAL DEL JUEGO
@@ -858,8 +1100,53 @@
       timerInterval = setInterval(updateTimer, 100);
     });
 
-    closeUpgradeMenu.addEventListener("click", () => {
-      upgradeMenu.style.display = "none";
+    // Botones de menú
+    shopButton.addEventListener("click", () => {
+      shopMenu.style.display = "block";
+      updateShopButtons();
+    });
+
+    closeShop.addEventListener("click", () => {
+      shopMenu.style.display = "none";
+    });
+
+    battlePassButton.addEventListener("click", () => {
+      battlePassMenu.style.display = "block";
+      bpLevelDisplay.textContent = bpLevel;
+      updateBattlePassButtons();
+    });
+
+    closeBattlePass.addEventListener("click", () => {
+      battlePassMenu.style.display = "none";
+    });
+
+    skinsButton.addEventListener("click", () => {
+      skinsMenu.style.display = "block";
+    });
+
+    closeSkins.addEventListener("click", () => {
+      skinsMenu.style.display = "none";
+    });
+
+    // Botones de compra
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        buyUpgrade(btn.dataset.upgrade, parseInt(btn.dataset.cost));
+      });
+    });
+
+    // Botones de reclamar recompensas
+    document.querySelectorAll('.claim-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        claimTierReward(parseInt(btn.dataset.tier));
+      });
+    });
+
+    // Botones de skins
+    document.querySelectorAll('.skin-option').forEach(skin => {
+      skin.addEventListener('click', () => {
+        changeSkin(skin.dataset.skin);
+      });
     });
 
     // AJUSTAR TAMAÑO AL CAMBIAR VENTANA
