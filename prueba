@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Juego de Reflejos</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    h1#score {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 36px;
+    }
+
+    .target {
+      position: absolute;
+      width: 110px;
+      height: 80px;
+      background-image: url('https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0'); /* puedes cambiar esta imagen */
+      background-size: cover;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="score">Puntos: 0</h1>
+
+  <script>
+    const scoreEl = document.getElementById("score");
+    let score = 0;
+    let spawnInterval = 2000;
+    let multipleTargets = false;
+
+    const screenWidth = 1366;
+    const screenHeight = 768;
+
+    function spawnTarget() {
+      const target = document.createElement("div");
+      target.classList.add("target");
+
+      const x = Math.floor(Math.random() * (screenWidth - 60));
+      const y = Math.floor(Math.random() * (screenHeight - 60));
+
+      target.style.left = x + "px";
+      target.style.top = y + "px";
+
+      target.addEventListener("mouseenter", () => {
+        score++;
+        scoreEl.textContent = `Puntos: ${score}`;
+        target.remove();
+      });
+
+      document.body.appendChild(target);
+
+      setTimeout(() => {
+        if (document.body.contains(target)) {
+          target.remove();
+        }
+      }, 5000);
+    }
+
+    function gameLoop() {
+      if (multipleTargets) {
+        const targetsToSpawn = Math.min(1 + Math.floor(score / 10), 5);
+        for (let i = 0; i < targetsToSpawn; i++) {
+          spawnTarget();
+        }
+      } else {
+        spawnTarget();
+      }
+
+      if (spawnInterval > 400) {
+        spawnInterval -= 50;
+      } else {
+        multipleTargets = true;
+      }
+
+      setTimeout(gameLoop, spawnInterval);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
