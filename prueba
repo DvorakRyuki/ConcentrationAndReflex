@@ -2,17 +2,21 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Juego de Reflejos</title>
+  <title>Ultra Zigger</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
       background-color: #111;
+      background-image: radial-gradient(circle, #222 1px, transparent 1px);
+      background-size: 20px 20px;
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       position: relative;
       width: 100vw;
       height: 100vh;
+      cursor: crosshair;
+      transition: background-color 0.5s;
     }
 
     h1#score {
@@ -21,43 +25,496 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: 36px;
+      z-index: 1000;
+      text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 2px solid #00ff00;
     }
 
-    .target {
+    .target, .bonus, .trap, .powerup {
       position: absolute;
       width: 110px;
       height: 80px;
-      background-image: url('https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0'); /* puedes cambiar esta imagen */
-      background-size: cover;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
       cursor: pointer;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards, floatY 2s ease-in-out infinite alternate;
+      transition: transform 0.2s;
+    }
+
+    .target:hover, .bonus:hover, .trap:hover, .powerup:hover {
+      transform: scale(1.1);
+    }
+
+    .bonus {
+      width: 120px;
+      height: 90px;
+      animation: fadeIn 0.3s forwards, floatY 2s ease-in-out infinite alternate, glow 1.5s ease-in-out infinite alternate;
+    }
+
+    .trap {
+      filter: hue-rotate(120deg) brightness(1.2);
+      animation: fadeIn 0.3s forwards, shake 0.5s ease-in-out infinite alternate;
+    }
+
+    .powerup {
+      width: 100px;
+      height: 100px;
+      animation: fadeIn 0.3s forwards, floatY 2s ease-in-out infinite alternate, pulse 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes floatY {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(10px); }
+    }
+
+    @keyframes glow {
+      0% { filter: drop-shadow(0 0 5px gold); }
+      100% { filter: drop-shadow(0 0 20px gold); }
+    }
+
+    @keyframes shake {
+      0% { transform: rotate(-5deg); }
+      100% { transform: rotate(5deg); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    .explosion {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background-image: url('https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-11-849_512.gif');
+      background-size: contain;
+      pointer-events: none;
+      z-index: 999;
+      animation: fadeOut 0.5s forwards;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: scale(1.5); }
+    }
+
+    #level-up {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px;
+      color: gold;
+      text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+      opacity: 0;
+      z-index: 1001;
+      animation: levelUp 2s ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes levelUp {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    }
+
+    #timer {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      color: #ff5555;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px 10px;
+      border-radius: 5px;
+      z-index: 1000;
+    }
+
+    #combo-display {
+      position: absolute;
+      font-size: 24px;
+      color: gold;
+      text-shadow: 0 0 5px #000;
+      z-index: 1002;
+      animation: pop 0.5s;
+    }
+
+    .moving-obstacle {
+      position: absolute;
+      width: 200px;
+      height: 20px;
+      background-color: #ff5555;
+      top: 50%;
+      z-index: 800;
+      animation: moveAcross 5s linear infinite;
+    }
+
+    #lives-display {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      z-index: 1000;
+    }
+
+    #start-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    #start-button {
+      padding: 15px 30px;
+      font-size: 24px;
+      background: linear-gradient(to bottom, #00aa00, #007700);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #start-button:hover {
+      transform: scale(1.1);
+      background: linear-gradient(to bottom, #00cc00, #009900);
+    }
+
+    #game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    #restart-button {
+      padding: 15px 30px;
+      font-size: 24px;
+      background: linear-gradient(to bottom, #aa0000, #770000);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #restart-button:hover {
+      transform: scale(1.1);
+      background: linear-gradient(to bottom, #cc0000, #990000);
+    }
+
+    .high-scores {
+      margin: 20px 0;
+      font-size: 20px;
+    }
+
+    .high-scores ol {
+      text-align: left;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.5); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes moveAcross {
+      0% { left: -200px; }
+      100% { left: 100%; }
+    }
+
+    body.frenzy {
+      background-color: #ff0000;
+      animation: frenzyBackground 0.5s infinite alternate;
+    }
+
+    @keyframes frenzyBackground {
+      0% { background-color: #ff0000; }
+      100% { background-color: #ff6600; }
     }
   </style>
 </head>
 <body>
-  <h1 id="score">Puntos: 0</h1>
+  <div id="start-screen">
+    <h1>Ultra Zigger v1.1</h1>
+    <button id="start-button">Comenzar</button>
+    <div class="instructions">
+      <p>Haz clic en los objetivos para ganar puntos</p>
+      <p>Los bonus (alien) dan 5 puntos</p>
+      <p>¡Evita las trampas (imagen en blanco y negro)!</p>
+      <p>Atrapa los power-ups (iconos brillantes) para habilidades especiales</p>
+    </div>
+  </div>
+
+  <div id="game-over-screen">
+    <h1>¡GAME OVER!</h1>
+    <h2 id="final-score">Puntuación: 0</h2>
+    <div class="high-scores">
+      <h3>Mejores Puntuaciones</h3>
+      <ol id="high-scores-list"></ol>
+    </div>
+    <button id="restart-button">Jugar de Nuevo</button>
+  </div>
+
+  <h1 id="score">Puntos: 0 | Nivel: 1</h1>
+  <div id="timer">Próximo: 0s</div>
+  <div id="lives-display">❤️❤️❤️</div>
+  <div id="level-up" style="display: none;">¡LEVEL UP!</div>
+  <div id="combo-display"></div>
+
+  <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3"></audio>
+  <audio id="bonus-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-bonus-earned-in-video-game-2058.mp3"></audio>
+  <audio id="trap-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3"></audio>
+  <audio id="powerup-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3"></audio>
 
   <script>
+    // Elementos del DOM
     const scoreEl = document.getElementById("score");
+    const timerEl = document.getElementById("timer");
+    const levelUpEl = document.getElementById("level-up");
+    const comboDisplay = document.getElementById("combo-display");
+    const livesDisplay = document.getElementById("lives-display");
+    const startScreen = document.getElementById("start-screen");
+    const startButton = document.getElementById("start-button");
+    const gameOverScreen = document.getElementById("game-over-screen");
+    const restartButton = document.getElementById("restart-button");
+    const finalScoreEl = document.getElementById("final-score");
+    const highScoresList = document.getElementById("high-scores-list");
+
+    // Variables del juego
     let score = 0;
+    let level = 1;
+    let lives = 3;
     let spawnInterval = 2000;
     let multipleTargets = false;
+    let screenWidth = window.innerWidth;
+    let screenHeight = window.innerHeight;
+    let lastSpawnTime = 0;
+    let timerInterval;
+    let gameRunning = false;
+    let combo = 0;
+    let comboMultiplier = 1;
+    let comboTimeout;
+    let frenzyMode = false;
+    let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
 
-    const screenWidth = 1366;
-    const screenHeight = 768;
+    // Imágenes
+    const imageNormal = 'https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0';
+    const imageBonus = 'https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif';
+    const imageTrap = 'https://static01.nyt.com/images/2020/05/27/us/27georgefloyd/27georgefloyd-videoSixteenByNineJumbo1600.jpg';
+    const imageFreeze = 'https://dab57h0r8ahff.cloudfront.net/444493/uploads/c3fa2ea0-a5b8-11ea-9b80-23cb8c39deaf_800_420.png';
+    const imageFrenzy = 'https://beater.gr/wp-content/uploads/2020/05/funny-weird-wtf-stock-photos-beatergr-41-585x390.jpg';
 
-    function spawnTarget() {
+    // Power-ups
+    const powerUps = {
+      freeze: {
+        image: imageFreeze,
+        effect: () => {
+          document.querySelectorAll('.target, .bonus, .trap').forEach(target => {
+            target.style.animationPlayState = 'paused';
+          });
+          setTimeout(() => {
+            document.querySelectorAll('.target, .bonus, .trap').forEach(target => {
+              target.style.animationPlayState = 'running';
+            });
+          }, 5000);
+        }
+      },
+      frenzy: {
+        image: imageFrenzy,
+        effect: () => {
+          activateFrenzyMode();
+        }
+      }
+    };
+
+    // Inicialización del juego
+    function initGame() {
+      score = 0;
+      level = 1;
+      lives = 3;
+      spawnInterval = 2000;
+      multipleTargets = false;
+      combo = 0;
+      comboMultiplier = 1;
+      frenzyMode = false;
+      
+      scoreEl.textContent = `Puntos: ${score} | Nivel: ${level}`;
+      livesDisplay.textContent = "❤️❤️❤️";
+      comboDisplay.textContent = "";
+      document.body.className = "";
+      
+      // Limpiar objetivos existentes
+      document.querySelectorAll('.target, .bonus, .trap, .powerup, .moving-obstacle').forEach(el => el.remove());
+    }
+
+    // Función para crear explosión
+    function createExplosion(x, y) {
+      const explosion = document.createElement("div");
+      explosion.classList.add("explosion");
+      explosion.style.left = `${x - 50}px`;
+      explosion.style.top = `${y - 50}px`;
+      document.body.appendChild(explosion);
+      
+      setTimeout(() => {
+        explosion.remove();
+      }, 500);
+    }
+
+    // Función para activar modo frenético
+    function activateFrenzyMode() {
+      frenzyMode = true;
+      document.body.classList.add("frenzy");
+      setTimeout(() => {
+        frenzyMode = false;
+        document.body.classList.remove("frenzy");
+      }, 10000);
+    }
+
+    // Función para mostrar subida de nivel
+    function showLevelUp() {
+      levelUpEl.style.display = "block";
+      levelUpEl.style.animation = "none";
+      void levelUpEl.offsetWidth;
+      levelUpEl.style.animation = "levelUp 2s ease-out";
+      
+      setTimeout(() => {
+        levelUpEl.style.display = "none";
+      }, 2000);
+    }
+
+    // Función para actualizar el temporizador
+    function updateTimer() {
+      const now = Date.now();
+      const timeLeft = Math.max(0, Math.floor((lastSpawnTime + spawnInterval - now) / 1000));
+      timerEl.textContent = `Próximo: ${timeLeft}s`;
+    }
+
+    // Función para spawnear objetivos
+    function spawn(type = "normal") {
       const target = document.createElement("div");
+      let points = 1;
+      let lifetime = 5000;
       target.classList.add("target");
 
-      const x = Math.floor(Math.random() * (screenWidth - 60));
-      const y = Math.floor(Math.random() * (screenHeight - 60));
+      if (type === "bonus") {
+        target.classList.add("bonus");
+        target.style.backgroundImage = `url('${imageBonus}')`;
+        points = 5;
+        lifetime = 3000;
+      } else if (type === "trap") {
+        target.classList.add("trap");
+        target.style.backgroundImage = `url('${imageTrap}')`;
+        points = -2;
+      } else if (type === "powerup") {
+        target.classList.add("powerup");
+        const powerUpKeys = Object.keys(powerUps);
+        const randomPowerUp = powerUpKeys[Math.floor(Math.random() * powerUpKeys.length)];
+        target.style.backgroundImage = `url('${powerUps[randomPowerUp].image}')`;
+        points = 0;
+        target.dataset.powerup = randomPowerUp;
+      } else {
+        target.style.backgroundImage = `url('${imageNormal}')`;
+      }
 
-      target.style.left = x + "px";
-      target.style.top = y + "px";
+      // Objetivos más pequeños en niveles altos
+      if (level > 5) {
+        target.style.width = `${110 - level * 2}px`;
+        target.style.height = `${80 - level * 2}px`;
+      }
+
+      const x = Math.floor(Math.random() * (screenWidth - 120));
+      const y = Math.floor(Math.random() * (screenHeight - 100));
+
+      target.style.left = `${x}px`;
+      target.style.top = `${y}px`;
 
       target.addEventListener("mouseenter", () => {
-        score++;
-        scoreEl.textContent = `Puntos: ${score}`;
+        // Sonidos
+        if (type === "bonus") {
+          document.getElementById("bonus-sound").currentTime = 0;
+          document.getElementById("bonus-sound").play();
+        } else if (type === "trap") {
+          document.getElementById("trap-sound").currentTime = 0;
+          document.getElementById("trap-sound").play();
+        } else if (type === "powerup") {
+          document.getElementById("powerup-sound").currentTime = 0;
+          document.getElementById("powerup-sound").play();
+        } else {
+          document.getElementById("click-sound").currentTime = 0;
+          document.getElementById("click-sound").play();
+        }
+
+        // Sistema de combo
+        combo++;
+        clearTimeout(comboTimeout);
+        comboTimeout = setTimeout(() => {
+          combo = 0;
+          comboMultiplier = 1;
+          comboDisplay.textContent = "";
+        }, 2000);
+
+        if (combo >= 3) {
+          comboMultiplier = Math.min(Math.floor(combo / 3) + 1, 5);
+          comboDisplay.textContent = `COMBO x${comboMultiplier}!`;
+          comboDisplay.style.left = `${x}px`;
+          comboDisplay.style.top = `${y - 50}px`;
+          setTimeout(() => comboDisplay.textContent = "", 1000);
+        }
+
+        // Aplicar puntos
+        if (type === "powerup") {
+          powerUps[target.dataset.powerup].effect();
+        } else {
+          score += points * comboMultiplier;
+          if (score < 0) score = 0;
+
+          // Subir de nivel cada 15 puntos
+          const newLevel = Math.floor(score / 15) + 1;
+          if (newLevel > level) {
+            level = newLevel;
+            if (spawnInterval > 400) {
+              spawnInterval -= 150;
+            }
+            showLevelUp();
+          }
+
+          scoreEl.textContent = `Puntos: ${score} | Nivel: ${level}`;
+        }
+
+        // Manejar trampas
+        if (type === "trap") {
+          lives--;
+          updateLives();
+          if (lives <= 0) {
+            gameOver();
+          }
+        }
+
+        createExplosion(x + 60, y + 40);
         target.remove();
       });
 
@@ -67,29 +524,135 @@
         if (document.body.contains(target)) {
           target.remove();
         }
-      }, 5000);
+      }, lifetime);
     }
 
-    function gameLoop() {
-      if (multipleTargets) {
-        const targetsToSpawn = Math.min(1 + Math.floor(score / 10), 5);
-        for (let i = 0; i < targetsToSpawn; i++) {
-          spawnTarget();
+    // Función para spawnear power-ups
+    function spawnPowerUp() {
+      spawn("powerup");
+    }
+
+    // Función para spawnear obstáculos móviles
+    function spawnMovingObstacle() {
+      const obstacle = document.createElement("div");
+      obstacle.classList.add("moving-obstacle");
+      obstacle.style.top = `${Math.random() * (screenHeight - 50)}px`;
+      obstacle.style.animationDuration = `${Math.random() * 5 + 5}s`;
+      document.body.appendChild(obstacle);
+
+      setTimeout(() => {
+        if (document.body.contains(obstacle)) {
+          obstacle.remove();
         }
-      } else {
-        spawnTarget();
+      }, 10000);
+    }
+
+    // Función para actualizar vidas
+    function updateLives() {
+      livesDisplay.textContent = "❤️".repeat(lives);
+    }
+
+    // Función de game over
+    function gameOver() {
+      gameRunning = false;
+      clearInterval(timerInterval);
+      saveScore();
+      showGameOver();
+    }
+
+    // Función para mostrar game over
+    function showGameOver() {
+      finalScoreEl.textContent = `Puntuación: ${score}`;
+      updateHighScoresList();
+      gameOverScreen.style.display = "flex";
+    }
+
+    // Función para guardar puntuación
+    function saveScore() {
+      highScores.push(score);
+      highScores.sort((a, b) => b - a);
+      highScores = highScores.slice(0, 5);
+      localStorage.setItem('highScores', JSON.stringify(highScores));
+    }
+
+    // Función para actualizar la lista de puntuaciones
+    function updateHighScoresList() {
+      highScoresList.innerHTML = "";
+      highScores.forEach((score, index) => {
+        const li = document.createElement("li");
+        li.textContent = `${index + 1}. ${score}`;
+        highScoresList.appendChild(li);
+      });
+    }
+
+    // Bucle principal del juego
+    function gameLoop() {
+      if (!gameRunning) return;
+
+      const rand = Math.random();
+      lastSpawnTime = Date.now();
+
+      // 20% probabilidad bonus
+      if (rand < 0.20) {
+        spawn("bonus");
+      }
+      // 15% probabilidad trampa
+      else if (rand < 0.35) {
+        spawn("trap");
+      }
+      // 5% probabilidad power-up
+      else if (rand < 0.40) {
+        spawnPowerUp();
+      }
+      // normal
+      else {
+        if (multipleTargets) {
+          const targetsToSpawn = Math.min(1 + Math.floor(level / 2), 5);
+          for (let i = 0; i < targetsToSpawn; i++) {
+            setTimeout(() => spawn(), i * 200);
+          }
+        } else {
+          spawn();
+        }
       }
 
-      if (spawnInterval > 400) {
-        spawnInterval -= 50;
-      } else {
+      // Obstáculos en niveles altos
+      if (level > 3 && Math.random() < 0.1) {
+        spawnMovingObstacle();
+      }
+
+      if (spawnInterval <= 400) {
         multipleTargets = true;
       }
 
       setTimeout(gameLoop, spawnInterval);
     }
 
-    gameLoop();
+    // Event Listeners
+    startButton.addEventListener("click", () => {
+      startScreen.style.display = "none";
+      initGame();
+      gameRunning = true;
+      gameLoop();
+      timerInterval = setInterval(updateTimer, 100);
+    });
+
+    restartButton.addEventListener("click", () => {
+      gameOverScreen.style.display = "none";
+      initGame();
+      gameRunning = true;
+      gameLoop();
+      timerInterval = setInterval(updateTimer, 100);
+    });
+
+    // Ajustar tamaño al cambiar la ventana
+    window.addEventListener('resize', () => {
+      screenWidth = window.innerWidth;
+      screenHeight = window.innerHeight;
+    });
+
+    // Mostrar pantalla de inicio
+    updateHighScoresList();
   </script>
 </body>
 </html>
