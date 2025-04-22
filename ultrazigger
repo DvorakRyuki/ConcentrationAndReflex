@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>🚀 Juego de Reflejos Ultra Mejorado 🚀</title>
+  <title>🌟 ULTRA ZIGGER 🌟</title>
   <style>
     /* ESTILOS GENERALES */
     body {
@@ -16,7 +16,7 @@
       position: relative;
       width: 100vw;
       height: 100vh;
-      cursor: crosshair;
+      cursor: none;
       transition: background-color 0.5s;
     }
 
@@ -45,11 +45,37 @@
       border-radius: 10px;
       cursor: pointer;
       transition: transform 0.2s;
+      margin: 10px;
     }
 
     #start-button:hover {
       transform: scale(1.1);
       background: linear-gradient(to bottom, #00cc00, #009900);
+    }
+
+    .game-mode-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .mode-btn {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #444;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .mode-btn.active {
+      background: #4CAF50;
+      border-color: #45a049;
     }
 
     /* PANTALLA DE GAME OVER */
@@ -77,6 +103,7 @@
       border-radius: 10px;
       cursor: pointer;
       transition: transform 0.2s;
+      margin-top: 20px;
     }
 
     #restart-button:hover {
@@ -129,6 +156,37 @@
       color: gold;
     }
 
+    #combo-display {
+      position: absolute;
+      top: 100px;
+      left: 20px;
+      font-size: 24px;
+      color: #ff00ff;
+      text-shadow: 0 0 5px #000;
+      z-index: 1000;
+    }
+
+    #missions-display {
+      position: absolute;
+      bottom: 80px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 5px;
+      max-width: 250px;
+    }
+
+    .mission-item {
+      margin: 5px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .mission-progress {
+      margin-left: 5px;
+      color: #4CAF50;
+    }
+
     /* OBJETIVOS (TARGETS) */
     .target, .bonus, .trap, .powerup {
       position: absolute;
@@ -141,6 +199,7 @@
       opacity: 0;
       animation: fadeIn 0.3s forwards, floatY 2s ease-in-out infinite alternate;
       transition: transform 0.2s;
+      z-index: 10;
     }
 
     .target:hover, .bonus:hover, .trap:hover, .powerup:hover {
@@ -226,16 +285,6 @@
       100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
     }
 
-    /* COMBO DISPLAY */
-    #combo-display {
-      position: absolute;
-      font-size: 24px;
-      color: gold;
-      text-shadow: 0 0 5px #000;
-      z-index: 1002;
-      animation: pop 0.5s;
-    }
-
     @keyframes pop {
       0% { transform: scale(0.5); }
       50% { transform: scale(1.2); }
@@ -248,9 +297,17 @@
       width: 200px;
       height: 20px;
       background-color: #ff5555;
-      top: 50%;
       z-index: 800;
       animation: moveAcross 5s linear infinite;
+      pointer-events: none;
+    }
+
+    .obstacle-hitbox {
+      position: absolute;
+      width: 210px;
+      height: 30px;
+      top: -5px;
+      left: -5px;
     }
 
     @keyframes moveAcross {
@@ -284,6 +341,24 @@
       animation: bossEntrance 1s forwards, bossFloat 3s ease-in-out infinite alternate;
     }
 
+    .boss-health-bar {
+      position: absolute;
+      bottom: -30px;
+      width: 100%;
+      height: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      z-index: 901;
+    }
+
+    .boss-health-fill {
+      height: 100%;
+      background-color: #ff0000;
+      border-radius: 5px;
+      width: 100%;
+      transition: width 0.3s;
+    }
+
     @keyframes bossEntrance {
       from { transform: translate(-50%, -150%); }
       to { transform: translate(-50%, -50%); }
@@ -292,23 +367,6 @@
     @keyframes bossFloat {
       0% { transform: translate(-50%, -50%) rotate(-5deg); }
       100% { transform: translate(-50%, -50%) rotate(5deg); }
-    }
-
-    .health-bar {
-      position: absolute;
-      bottom: -30px;
-      width: 100%;
-      height: 10px;
-      background-color: #333;
-      border-radius: 5px;
-    }
-
-    .health-fill {
-      height: 100%;
-      background-color: #ff0000;
-      border-radius: 5px;
-      width: 100%;
-      transition: width 0.3s;
     }
 
     /* LOGROS */
@@ -323,6 +381,13 @@
       border-radius: 10px;
       z-index: 2000;
       animation: slideUp 2s forwards;
+      display: flex;
+      align-items: center;
+    }
+
+    .achievement-icon {
+      font-size: 24px;
+      margin-right: 10px;
     }
 
     @keyframes slideUp {
@@ -440,6 +505,11 @@
       border-color: gold;
     }
 
+    .skin-option.selected {
+      border-color: #4CAF50;
+      box-shadow: 0 0 10px #4CAF50;
+    }
+
     /* BOTONES DE MENÚ */
     .menu-button {
       position: absolute;
@@ -451,10 +521,15 @@
       border-radius: 5px;
       cursor: pointer;
       z-index: 1000;
+      transition: all 0.2s;
+    }
+
+    .menu-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
     }
 
     #shop-button {
-      right: 20px;
+      right: 220px;
     }
 
     #battle-pass-button {
@@ -462,21 +537,95 @@
     }
 
     #skins-button {
-      right: 220px;
+      right: 20px;
+    }
+
+    /* CURSOR PERSONALIZADO */
+    .custom-cursor {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      border: 2px solid #fff;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: difference;
+    }
+
+    /* TRAZO DEL CURSOR */
+    .cursor-trail {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      opacity: 0.7;
+      transition: opacity 0.3s, transform 0.1s;
+    }
+
+    /* EFECTOS ESPECIALES */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #f00;
+      pointer-events: none;
+      z-index: 1000;
+      animation: confettiFall 3s linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* EVENTOS ESPECIALES */
+    .event-notification {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(to right, #ff8a00, #ff0058);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 10px;
+      z-index: 2000;
+      animation: eventNotification 3s forwards;
+    }
+
+    @keyframes eventNotification {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-50px); }
+      10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-50px); }
     }
   </style>
 </head>
 <body>
   <!-- PANTALLA DE INICIO -->
   <div id="start-screen">
-    <h1>🚀 Juego de Reflejos Ultra 🚀</h1>
+    <h1>🌟 ULTRA ZIGGER 🌟</h1>
     <button id="start-button">Comenzar</button>
+    <div class="game-mode-buttons">
+      <button class="mode-btn active" data-mode="classic">Clásico</button>
+      <button class="mode-btn" data-mode="survival">Supervivencia</button>
+      <button class="mode-btn" data-mode="timeattack">Contrarreloj</button>
+    </div>
     <div class="instructions">
-      <p>¡Haz clic en los objetivos para ganar puntos!</p>
+      <p>¡Haz clic en los objetivos para ganar puntos y monedas!</p>
       <p>⚠️ <strong>Bonus (+5 pts)</strong> | <strong>Trampas (-2 pts)</strong> | <strong>Power-ups (habilidades)</strong></p>
       <p>🔹 <strong>Combos</strong> multiplican tus puntos</p>
-      <p>🔥 <strong>Modo Frenético</strong> activa bonus</p>
-      <p>🛒 <strong>Tienda</strong> y <strong>Pase de Batalla</strong> disponibles</p>
+      <p>🔥 <strong>Modos especiales</strong> y <strong>eventos únicos</strong></p>
     </div>
   </div>
 
@@ -496,9 +645,16 @@
   <div id="timer">Próximo: 0s</div>
   <div id="lives-display">❤️❤️❤️</div>
   <div id="coins-display">💰: 0</div>
-  <div id="level-up" style="display: none;">¡LEVEL UP!</div>
   <div id="combo-display"></div>
-  <div id="achievement-popup" class="achievement-popup" style="display: none;"></div>
+  <div id="missions-display">
+    <h3>Misiones Diarias</h3>
+    <div id="missions-list"></div>
+  </div>
+  <div id="level-up" style="display: none;">¡LEVEL UP!</div>
+  <div id="achievement-popup" class="achievement-popup" style="display: none;">
+    <span class="achievement-icon">🏆</span>
+    <div class="achievement-text"></div>
+  </div>
 
   <!-- BOTONES DE MENÚ -->
   <button id="shop-button" class="menu-button">🛒 Tienda</button>
@@ -529,6 +685,13 @@
       </div>
       <button class="buy-btn" data-upgrade="freezeTime" data-cost="200">200 💰</button>
     </div>
+    <div class="shop-item">
+      <div>
+        <h3>Iman de Objetivos</h3>
+        <p>Atrae objetivos por 10s</p>
+      </div>
+      <button class="buy-btn" data-upgrade="magnet" data-cost="250">250 💰</button>
+    </div>
     <button id="close-shop">Cerrar</button>
   </div>
 
@@ -547,17 +710,24 @@
       <span>Nivel 5: <span class="tier-reward">Skin Épica</span></span>
       <button class="claim-btn" data-tier="5">Reclamar</button>
     </div>
+    <div class="battle-pass-tier">
+      <span>Nivel 10: <span class="tier-reward">Cursor Dorado</span></span>
+      <button class="claim-btn" data-tier="10">Reclamar</button>
+    </div>
     <button id="close-battle-pass">Cerrar</button>
   </div>
 
   <!-- MENÚ DE SKINS -->
   <div id="skins-menu">
     <h2>🎨 Skins Disponibles</h2>
-    <div class="skin-option" data-skin="default" style="background-image: url('https://i.gifer.com/origin/9e/9e578407e529c3e5cc3c2a3f00d9a991_w200.gif')"></div>
+    <div class="skin-option selected" data-skin="default" style="background-image: url('https://i.gifer.com/origin/9e/9e578407e529c3e5cc3c2a3f00d9a991_w200.gif')"></div>
     <div class="skin-option" data-skin="alien" style="background-image: url('https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif')"></div>
-    <div class="skin-option" data-skin="epic" style="background-image: url('https://i.imgur.com/XYZ1234.png')"></div>
+    <div class="skin-option" data-skin="epic" style="background-image: url('https://media1.tenor.com/m/KdhfuQxbq-cAAAAd/furina-genshin-impact.gif')"></div>
     <button id="close-skins">Cerrar</button>
   </div>
+
+  <!-- CURSOR PERSONALIZADO -->
+  <div class="custom-cursor" id="custom-cursor"></div>
 
   <!-- AUDIOS -->
   <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3"></audio>
@@ -565,16 +735,20 @@
   <audio id="trap-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3"></audio>
   <audio id="powerup-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3"></audio>
   <audio id="boss-music" src="https://assets.mixkit.co/music/preview/mixkit-epic-arena-2983.mp3"></audio>
+  <audio id="levelup-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
 
   <!-- SCRIPT DEL JUEGO -->
   <script>
+    // =============================================
     // ELEMENTOS DEL DOM
+    // =============================================
     const scoreEl = document.getElementById("score");
     const timerEl = document.getElementById("timer");
     const levelUpEl = document.getElementById("level-up");
     const comboDisplay = document.getElementById("combo-display");
     const livesDisplay = document.getElementById("lives-display");
     const coinsDisplay = document.getElementById("coins-display");
+    const missionsDisplay = document.getElementById("missions-list");
     const startScreen = document.getElementById("start-screen");
     const startButton = document.getElementById("start-button");
     const gameOverScreen = document.getElementById("game-over-screen");
@@ -582,6 +756,7 @@
     const finalScoreEl = document.getElementById("final-score");
     const highScoresList = document.getElementById("high-scores-list");
     const achievementPopup = document.getElementById("achievement-popup");
+    const achievementText = document.querySelector(".achievement-text");
     const shopMenu = document.getElementById("shop-menu");
     const shopButton = document.getElementById("shop-button");
     const closeShop = document.getElementById("close-shop");
@@ -592,8 +767,12 @@
     const skinsMenu = document.getElementById("skins-menu");
     const skinsButton = document.getElementById("skins-button");
     const closeSkins = document.getElementById("close-skins");
+    const customCursor = document.getElementById("custom-cursor");
+    const modeButtons = document.querySelectorAll(".mode-btn");
 
+    // =============================================
     // VARIABLES DEL JUEGO
+    // =============================================
     let score = 0;
     let coins = 0;
     let level = 1;
@@ -613,14 +792,26 @@
     let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
     let claimedTiers = JSON.parse(localStorage.getItem('claimedTiers')) || [];
     let currentSkin = 'default';
+    let gameMode = 'classic';
+    let isMouseBlocked = false;
+    let lastValidPosition = { x: 0, y: 0 };
+    let clicksToday = 0;
+    let trapsAvoided = 0;
+    let gameStartTime = 0;
+    let totalPlayTime = 0;
+    let cursorTrails = [];
+    const trailLength = 15;
+    let trailIndex = 0;
+    let mouseX = 0, mouseY = 0;
 
     // IMÁGENES
     const imageNormal = 'https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0';
     const imageBonus = 'https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif';
     const imageTrap = 'https://static01.nyt.com/images/2020/05/27/us/27georgefloyd/27georgefloyd-videoSixteenByNineJumbo1600.jpg';
     const imageFreeze = 'https://dab57h0r8ahff.cloudfront.net/444493/uploads/c3fa2ea0-a5b8-11ea-9b80-23cb8c39deaf_800_420.png';
-    const imageFrenzy = 'https://beater.gr/wp-content/uploads/2020/05/funny-weird-wtf-stock-photos-beatergr-41-585x390.jpg';
-    const imageBoss = 'https://media.tenor.com/jJtTtaMOnNYAAAAM/ryan-gosling-burp.gif'; // Reemplaza con una imagen de jefe
+    const imageFrenzy = 'https://beater.gr/wp-content/uploads/2020/05/funny-weird-wtf-stock-photos-beatergr-41-585x390.jpghttps://media.tenor.com/hqHGfrBb0EEAAAAj/doro-spin-dorothy-nikke.gif';
+    const imageMagnet = 'https://cdn-icons-png.flaticon.com/512/3521/3521966.png';
+    const imageBoss = 'https://media.tenor.com/jJtTtaMOnNYAAAAM/ryan-gosling-burp.gif';
 
     // POWER-UPS
     const powerUps = {
@@ -642,6 +833,12 @@
         effect: () => {
           activateFrenzyMode();
         }
+      },
+      magnet: {
+        image: imageMagnet,
+        effect: () => {
+          activateMagnet();
+        }
       }
     };
 
@@ -649,15 +846,29 @@
     const upgrades = {
       extraLife: { active: false },
       doublePoints: { active: false, duration: 0 },
-      freezeTime: { active: false }
+      freezeTime: { active: false },
+      magnet: { active: false, duration: 0 }
     };
 
     // LOGROS
     const achievements = {
-      firstClick: { unlocked: false, name: "Primer Click!", desc: "Haz tu primer click" },
-      comboMaster: { unlocked: false, name: "Combo Master", desc: "Alcanza un combo de 5x" },
-      bossDefeater: { unlocked: false, name: "Cazajefes", desc: "Derrota a un jefe" }
+      firstClick: { unlocked: false, name: "Primer Click!", desc: "Haz tu primer click", icon: "👆" },
+      comboMaster: { unlocked: false, name: "Combo Master", desc: "Alcanza un combo de 5x", icon: "🔥" },
+      bossDefeater: { unlocked: false, name: "Cazajefes", desc: "Derrota a un jefe", icon: "👹" },
+      richPlayer: { unlocked: false, name: "Rico", desc: "Consigue 1000 monedas", icon: "💰" },
+      survivor: { unlocked: false, name: "Superviviente", desc: "Juega durante 1 hora", icon: "⏱️" }
     };
+
+    // MISIONES DIARIAS
+    const dailyMissions = {
+      click50: { goal: 50, reward: 100, completed: false, progress: 0, desc: "Haz 50 clicks" },
+      avoidTraps: { goal: 10, reward: 150, completed: false, progress: 0, desc: "Evita 10 trampas" },
+      reachLevel5: { goal: 5, reward: 200, completed: false, progress: 0, desc: "Alcanza nivel 5" }
+    };
+
+    // =============================================
+    // FUNCIONES DEL JUEGO
+    // =============================================
 
     // INICIALIZACIÓN DEL JUEGO
     function initGame() {
@@ -665,44 +876,126 @@
       coins = 0;
       level = 1;
       bpLevel = 1;
-      lives = 3;
+      lives = gameMode === 'survival' ? Infinity : 3;
       spawnInterval = 2000;
       multipleTargets = false;
       combo = 0;
       comboMultiplier = 1;
       frenzyMode = false;
+      gameStartTime = Date.now();
       
       scoreEl.textContent = `Puntos: ${score} | Nivel: ${level}`;
       coinsDisplay.textContent = `💰: ${coins}`;
-      livesDisplay.textContent = "❤️❤️❤️";
+      livesDisplay.textContent = gameMode === 'survival' ? "∞" : "❤️❤️❤️";
       comboDisplay.textContent = "";
       document.body.className = "";
       
       // Limpiar objetivos existentes
       document.querySelectorAll('.target, .bonus, .trap, .powerup, .moving-obstacle, .boss').forEach(el => el.remove());
+      
+      // Inicializar misiones
+      updateMissionsDisplay();
+      
+      // Inicializar cursor personalizado
+      initCursorTrail();
     }
 
-    // FUNCIÓN PARA CREAR EXPLOSIÓN
-    function createExplosion(x, y) {
-      const explosion = document.createElement("div");
-      explosion.classList.add("explosion");
-      explosion.style.left = `${x - 50}px`;
-      explosion.style.top = `${y - 50}px`;
-      document.body.appendChild(explosion);
+    // INICIALIZAR TRAZO DEL CURSOR
+    function initCursorTrail() {
+      // Crear partículas del trazo
+      for (let i = 0; i < trailLength; i++) {
+        const trail = document.createElement('div');
+        trail.className = 'cursor-trail';
+        trail.style.opacity = 0;
+        document.body.appendChild(trail);
+        cursorTrails.push(trail);
+      }
       
-      setTimeout(() => {
-        explosion.remove();
-      }, 500);
+      // Actualizar posición del cursor
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        
+        // Mover cursor personalizado
+        customCursor.style.left = `${mouseX}px`;
+        customCursor.style.top = `${mouseY}px`;
+        
+        // Actualizar trazo
+        const trail = cursorTrails[trailIndex];
+        trail.style.left = `${mouseX}px`;
+        trail.style.top = `${mouseY}px`;
+        trail.style.opacity = 0.7;
+        trail.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        
+        // Efecto de desvanecimiento
+        setTimeout(() => {
+          trail.style.opacity = 0;
+          trail.style.transform = 'translate(-50%, -50%) scale(0.5)';
+        }, 100);
+        
+        trail.style.transform = 'translate(-50%, -50%) scale(1)';
+        trailIndex = (trailIndex + 1) % trailLength;
+      });
     }
 
     // ACTIVAR MODO FRENÉTICO
     function activateFrenzyMode() {
       frenzyMode = true;
       document.body.classList.add("frenzy");
+      
+      // Mostrar notificación
+      showEventNotification("¡MODO FRENÉTICO ACTIVADO! Puntos dobles por 10 segundos");
+      
       setTimeout(() => {
         frenzyMode = false;
         document.body.classList.remove("frenzy");
       }, 10000);
+    }
+
+    // ACTIVAR IMÁN DE OBJETIVOS
+    function activateMagnet() {
+      upgrades.magnet.active = true;
+      upgrades.magnet.duration = 10;
+      
+      // Mostrar notificación
+      showEventNotification("¡IMÁN ACTIVADO! Atrayendo objetivos por 10 segundos");
+      
+      const magnetInterval = setInterval(() => {
+        document.querySelectorAll('.target, .bonus, .powerup').forEach(target => {
+          const targetRect = target.getBoundingClientRect();
+          const targetX = targetRect.left + targetRect.width / 2;
+          const targetY = targetRect.top + targetRect.height / 2;
+          
+          const dx = mouseX - targetX;
+          const dy = mouseY - targetY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 300) { // Radio de atracción
+            const moveX = dx * 0.05;
+            const moveY = dy * 0.05;
+            
+            target.style.left = `${parseFloat(target.style.left) + moveX}px`;
+            target.style.top = `${parseFloat(target.style.top) + moveY}px`;
+          }
+        });
+      }, 50);
+      
+      setTimeout(() => {
+        clearInterval(magnetInterval);
+        upgrades.magnet.active = false;
+      }, 10000);
+    }
+
+    // MOSTRAR NOTIFICACIÓN DE EVENTO
+    function showEventNotification(message) {
+      const notification = document.createElement('div');
+      notification.className = 'event-notification';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
     }
 
     // MOSTRAR SUBIDA DE NIVEL
@@ -711,6 +1004,7 @@
       levelUpEl.style.animation = "none";
       void levelUpEl.offsetWidth;
       levelUpEl.style.animation = "levelUp 2s ease-out";
+      document.getElementById("levelup-sound").play();
       
       setTimeout(() => {
         levelUpEl.style.display = "none";
@@ -721,7 +1015,18 @@
     function updateTimer() {
       const now = Date.now();
       const timeLeft = Math.max(0, Math.floor((lastSpawnTime + spawnInterval - now) / 1000));
-      timerEl.textContent = `Próximo: ${timeLeft}s`;
+      
+      if (gameMode === 'timeattack') {
+        const elapsed = Math.floor((now - gameStartTime) / 1000);
+        const remaining = Math.max(0, 60 - elapsed);
+        timerEl.textContent = `Tiempo: ${remaining}s`;
+        
+        if (remaining <= 0) {
+          gameOver();
+        }
+      } else {
+        timerEl.textContent = `Próximo: ${timeLeft}s`;
+      }
     }
 
     // ACTUALIZAR MONEDAS
@@ -729,6 +1034,11 @@
       coins += amount;
       coinsDisplay.textContent = `💰: ${coins}`;
       updateShopButtons();
+      
+      // Verificar logro de monedas
+      if (coins >= 1000 && !achievements.richPlayer.unlocked) {
+        unlockAchievement('richPlayer');
+      }
     }
 
     // COMPRAR MEJORA
@@ -740,17 +1050,19 @@
         switch (upgradeId) {
           case 'extraLife':
             lives++;
-            livesDisplay.textContent = "❤️".repeat(lives);
+            livesDisplay.textContent = gameMode === 'survival' ? "∞" : "❤️".repeat(lives);
             break;
           case 'doublePoints':
             upgrades.doublePoints.active = true;
             upgrades.doublePoints.duration = 30;
+            showEventNotification("¡PUNTOS DOBLES ACTIVADOS! x2 puntos por 30 segundos");
             setTimeout(() => {
               upgrades.doublePoints.active = false;
             }, 30000);
             break;
           case 'freezeTime':
             upgrades.freezeTime.active = true;
+            showEventNotification("¡TIEMPO CONGELADO! Objetivos detenidos por 5 segundos");
             document.querySelectorAll('.target, .bonus, .trap').forEach(target => {
               target.style.animationPlayState = 'paused';
             });
@@ -760,6 +1072,9 @@
                 target.style.animationPlayState = 'running';
               });
             }, 5000);
+            break;
+          case 'magnet':
+            activateMagnet();
             break;
         }
         
@@ -783,13 +1098,19 @@
         
         switch (tier) {
           case 1:
-            // Skin básica ya está desbloqueada
+            showEventNotification("¡Skin básica desbloqueada!");
             break;
           case 3:
             updateCoins(100);
+            showEventNotification("¡+100 monedas!");
             break;
           case 5:
-            // Skin épica desbloqueada
+            showEventNotification("¡Skin épica desbloqueada!");
+            break;
+          case 10:
+            showEventNotification("¡Cursor dorado desbloqueado!");
+            customCursor.style.background = 'gold';
+            customCursor.style.borderColor = 'darkgoldenrod';
             break;
         }
         
@@ -809,7 +1130,109 @@
     // CAMBIAR SKIN
     function changeSkin(skin) {
       currentSkin = skin;
+      document.querySelectorAll('.skin-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      document.querySelector(`.skin-option[data-skin="${skin}"]`).classList.add('selected');
+      
       // Aquí podrías cambiar la imagen de los objetivos según la skin seleccionada
+      showEventNotification(`Skin "${skin}" seleccionada`);
+    }
+
+    // DESBLOQUEAR LOGRO
+    function unlockAchievement(id) {
+      achievements[id].unlocked = true;
+      achievementText.innerHTML = `<strong>${achievements[id].name}</strong><br>${achievements[id].desc}`;
+      achievementPopup.querySelector('.achievement-icon').textContent = achievements[id].icon;
+      achievementPopup.style.display = "flex";
+      
+      // Efecto de confeti
+      spawnConfetti(20);
+      
+      setTimeout(() => {
+        achievementPopup.style.display = "none";
+      }, 3000);
+    }
+
+    // EFECTO DE CONFETI
+    function spawnConfetti(count) {
+      for (let i = 0; i < count; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDuration = `${2 + Math.random() * 3}s`;
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => {
+          confetti.remove();
+        }, 3000);
+      }
+    }
+
+    // ACTUALIZAR MISIONES
+    function updateMissions() {
+      // Misión de clicks
+      if (!dailyMissions.click50.completed) {
+        dailyMissions.click50.progress = clicksToday;
+        if (clicksToday >= dailyMissions.click50.goal) {
+          dailyMissions.click50.completed = true;
+          updateCoins(dailyMissions.click50.reward);
+          showEventNotification("¡Misión completada! +100 monedas");
+        }
+      }
+      
+      // Misión de trampas evitadas
+      if (!dailyMissions.avoidTraps.completed) {
+        dailyMissions.avoidTraps.progress = trapsAvoided;
+        if (trapsAvoided >= dailyMissions.avoidTraps.goal) {
+          dailyMissions.avoidTraps.completed = true;
+          updateCoins(dailyMissions.avoidTraps.reward);
+          showEventNotification("¡Misión completada! +150 monedas");
+        }
+      }
+      
+      // Misión de nivel
+      if (!dailyMissions.reachLevel5.completed) {
+        dailyMissions.reachLevel5.progress = level;
+        if (level >= dailyMissions.reachLevel5.goal) {
+          dailyMissions.reachLevel5.completed = true;
+          updateCoins(dailyMissions.reachLevel5.reward);
+          showEventNotification("¡Misión completada! +200 monedas");
+        }
+      }
+      
+      updateMissionsDisplay();
+    }
+
+    // ACTUALIZAR VISUALIZACIÓN DE MISIONES
+    function updateMissionsDisplay() {
+      missionsDisplay.innerHTML = '';
+      
+      Object.entries(dailyMissions).forEach(([key, mission]) => {
+        const missionEl = document.createElement('div');
+        missionEl.className = 'mission-item';
+        
+        const status = mission.completed ? '✅' : '🟡';
+        missionEl.innerHTML = `
+          ${status} ${mission.desc} 
+          <span class="mission-progress">(${mission.progress}/${mission.goal})</span>
+        `;
+        
+        missionsDisplay.appendChild(missionEl);
+      });
+    }
+
+    // VERIFICAR COLISIÓN CON OBSTÁCULOS
+    function checkObstacleCollision(x, y) {
+      const obstacles = document.querySelectorAll('.obstacle-hitbox');
+      for (const obstacle of obstacles) {
+        const rect = obstacle.getBoundingClientRect();
+        if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
+          return true;
+        }
+      }
+      return false;
     }
 
     // SPAWNEAR OBJETIVOS
@@ -867,6 +1290,10 @@
           document.getElementById("click-sound").play();
         }
 
+        // CONTAR CLICKS PARA MISIONES
+        clicksToday++;
+        updateMissions();
+
         // SISTEMA DE COMBO
         combo++;
         clearTimeout(comboTimeout);
@@ -882,6 +1309,11 @@
           comboDisplay.style.left = `${x}px`;
           comboDisplay.style.top = `${y - 50}px`;
           setTimeout(() => comboDisplay.textContent = "", 1000);
+          
+          // Verificar logro de combo
+          if (comboMultiplier >= 5 && !achievements.comboMaster.unlocked) {
+            unlockAchievement('comboMaster');
+          }
         }
 
         // APLICAR PUNTOS
@@ -900,6 +1332,10 @@
           if (newLevel > level) {
             level = newLevel;
             bpLevel = newLevel; // El pase de batalla sube con el nivel del juego
+            
+            // Verificar misión de nivel
+            updateMissions();
+            
             if (spawnInterval > 400) {
               spawnInterval -= 150;
             }
@@ -911,11 +1347,17 @@
 
         // MANEJAR TRAMPAS
         if (type === "trap") {
-          lives--;
-          updateLives();
-          if (lives <= 0) {
-            gameOver();
+          if (gameMode !== 'survival') {
+            lives--;
+            updateLives();
+            if (lives <= 0) {
+              gameOver();
+            }
           }
+        } else {
+          // Contar como trampa evitada si no se hizo click
+          trapsAvoided++;
+          updateMissions();
         }
 
         createExplosion(x + 60, y + 40);
@@ -939,9 +1381,16 @@
     // SPAWNEAR OBSTÁCULOS MÓVILES
     function spawnMovingObstacle() {
       const obstacle = document.createElement("div");
-      obstacle.classList.add("moving-obstacle");
-      obstacle.style.top = `${Math.random() * (screenHeight - 50)}px`;
+      obstacle.className = "moving-obstacle";
+      const topPos = Math.random() * (screenHeight - 50);
+      obstacle.style.top = `${topPos}px`;
       obstacle.style.animationDuration = `${Math.random() * 5 + 5}s`;
+      
+      // Añadir hitbox de colisión
+      const hitbox = document.createElement("div");
+      hitbox.className = "obstacle-hitbox";
+      obstacle.appendChild(hitbox);
+      
       document.body.appendChild(obstacle);
 
       setTimeout(() => {
@@ -953,6 +1402,8 @@
 
     // ACTUALIZAR VIDAS
     function updateLives() {
+      if (gameMode === 'survival') return;
+      
       livesDisplay.textContent = "❤️".repeat(lives);
     }
 
@@ -966,10 +1417,11 @@
         boss.style.backgroundImage = `url('${imageBoss}')`;
         boss.dataset.health = 10;
         
+        // Barra de salud del jefe
         const healthBar = document.createElement("div");
-        healthBar.className = "health-bar";
+        healthBar.className = "boss-health-bar";
         const healthFill = document.createElement("div");
-        healthFill.className = "health-fill";
+        healthFill.className = "boss-health-fill";
         healthBar.appendChild(healthFill);
         boss.appendChild(healthBar);
         
@@ -981,7 +1433,7 @@
             score += 50;
             updateCoins(50);
             achievements.bossDefeater.unlocked = true;
-            showAchievementPopup(achievements.bossDefeater.name);
+            unlockAchievement('bossDefeater');
             boss.remove();
             gameRunning = true;
             gameLoop();
@@ -993,19 +1445,19 @@
       }
     }
 
-    // MOSTRAR LOGRO
-    function showAchievementPopup(name) {
-      achievementPopup.textContent = `🎉 Logro desbloqueado: ${name}!`;
-      achievementPopup.style.display = "block";
-      setTimeout(() => {
-        achievementPopup.style.display = "none";
-      }, 2000);
-    }
-
     // GAME OVER
     function gameOver() {
       gameRunning = false;
       clearInterval(timerInterval);
+      
+      // Calcular tiempo de juego
+      totalPlayTime += (Date.now() - gameStartTime) / 1000;
+      
+      // Verificar logro de supervivencia
+      if (totalPlayTime >= 3600 && !achievements.survivor.unlocked) {
+        unlockAchievement('survivor');
+      }
+      
       saveScore();
       showGameOver();
     }
@@ -1083,7 +1535,24 @@
       setTimeout(gameLoop, spawnInterval);
     }
 
+    // DETECTAR COLISIÓN CON OBSTÁCULOS
+    document.addEventListener('mousemove', (e) => {
+      if (!checkObstacleCollision(e.clientX, e.clientY)) {
+        lastValidPosition = { x: e.clientX, y: e.clientY };
+        isMouseBlocked = false;
+      } else if (!isMouseBlocked) {
+        isMouseBlocked = true;
+        // Forzar cursor a la última posición válida
+        window.dispatchEvent(new MouseEvent('mousemove', {
+          clientX: lastValidPosition.x,
+          clientY: lastValidPosition.y
+        }));
+      }
+    });
+
+    // =============================================
     // EVENT LISTENERS
+    // =============================================
     startButton.addEventListener("click", () => {
       startScreen.style.display = "none";
       initGame();
@@ -1146,6 +1615,15 @@
     document.querySelectorAll('.skin-option').forEach(skin => {
       skin.addEventListener('click', () => {
         changeSkin(skin.dataset.skin);
+      });
+    });
+
+    // Botones de modo de juego
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        gameMode = btn.dataset.mode;
       });
     });
 
