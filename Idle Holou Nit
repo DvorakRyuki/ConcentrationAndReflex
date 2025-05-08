@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idle Hollow Knight</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+
+    #points {
+      font-size: 2.5em;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    #heroesContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto;
+    }
+
+    .hero {
+      width: 120px;
+      height: 120px;
+      background: url('https://cdn.pixabay.com/photo/2021/04/22/10/57/hero-6198009_960_720.png') center/contain no-repeat;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .hero:active {
+      transform: scale(0.95);
+    }
+
+    button {
+      background-color: #22c55e;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      cursor: pointer;
+      margin: 10px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #16a34a;
+      transform: scale(1.05);
+    }
+
+    .upgrade {
+      background-color: #facc15;
+      color: #000;
+    }
+
+    .upgrade:hover {
+      background-color: #eab308;
+    }
+
+    .info {
+      font-size: 1em;
+      margin-top: 20px;
+      opacity: 0.85;
+    }
+
+    .glow {
+      text-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 20px #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="glow">Idle Hollow Knight</h1>
+    <div id="points">Puntos: 0</div>
+    <div id="heroesContainer">
+      <div class="hero" id="mainHero" title="¡Haz clic en el héroe para ganar puntos!"></div>
+    </div>
+    <br>
+    <button class="upgrade" onclick="buyUpgrade(1)">Contratar Holou Nit (Auto +1/s) - <span id="cost1">50</span> pts</button>
+    <button class="upgrade" onclick="buyUpgrade(2)">Equipo de Nits (Auto +5/s) - <span id="cost2">200</span> pts</button>
+    <div class="info">
+      <p>Ganancia automática por segundo: <span id="autoPoints">0</span></p>
+    </div>
+  </div>
+
+  <script>
+  let points = 0;
+  const upgrades = {
+    1: { amount: 1, cost: 50 },
+    2: { amount: 5, cost: 200 },
+  };
+
+  const mainHero = document.getElementById("mainHero");
+  const heroesContainer = document.getElementById("heroesContainer");
+
+  const heroStatic = 'https://tse3.mm.bing.net/th/id/OIP.w1heLGLJzqsAsR6AzTAhKQAAAA?rs=1&pid=ImgDetMain'; 
+  const heroActive = 'https://media.tenor.com/hdHxFwuzAPUAAAAC/hollow-knight-the-knight.gif';
+
+  mainHero.addEventListener("mousedown", () => {
+    mainHero.style.backgroundImage = `url('${heroActive}')`;
+  });
+
+  mainHero.addEventListener("mouseup", () => {
+    mainHero.style.backgroundImage = `url('${heroStatic}')`;
+    addPoints(1);
+  });
+
+  function updateUI() {
+    const heroCount = document.querySelectorAll(".hero").length;
+    const autoClick = heroCount - 1; // Excluye al héroe principal
+    document.getElementById("points").textContent = `Puntos: ${Math.floor(points)}`;
+    document.getElementById("autoPoints").textContent = autoClick;
+    document.getElementById("cost1").textContent = upgrades[1].cost;
+    document.getElementById("cost2").textContent = upgrades[2].cost;
+  }
+
+  function addPoints(amount) {
+    points += amount;
+    updateUI();
+  }
+
+ function addHeroImage() {
+  const newHero = document.createElement("div");
+  newHero.className = "hero";
+  newHero.style.backgroundImage = `url('${heroActive}')`; // Siempre activo
+
+  document.getElementById("heroesContainer").appendChild(newHero);
+}
+
+
+  function adjustHeroSizes() {
+    const heroes = document.querySelectorAll(".hero");
+    const scale = Math.max(0.5, 1 - (heroes.length - 1) * 0.05); // mínimo 50%
+    heroes.forEach(hero => {
+      hero.style.transform = `scale(${scale})`;
+    });
+  }
+
+  function buyUpgrade(type) {
+    const upgrade = upgrades[type];
+    if (points >= upgrade.cost) {
+      points -= upgrade.cost;
+      for (let i = 0; i < upgrade.amount; i++) addHeroImage();
+      upgrade.cost = Math.floor(upgrade.cost * 1.5);
+      updateUI();
+    }
+  }
+
+  // Auto points every second based on number of extra heroes
+  setInterval(() => {
+    const heroCount = document.querySelectorAll(".hero").length;
+    const autoPoints = heroCount - 1; // excluye al principal
+    addPoints(autoPoints);
+  }, 1000);
+
+  // Iniciar
+  updateUI();
+</script>
+</body>
+</html>
