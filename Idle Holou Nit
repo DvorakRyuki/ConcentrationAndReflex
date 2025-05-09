@@ -1,183 +1,546 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Idle Hollow Knight</title>
+  <title>Idle Holou Nait</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #141e30, #243b55);
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #1a2980, #26d0ce);
       color: #fff;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .game-container {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
       padding: 20px;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      width: 85%;
+      max-width: 700px;
       position: relative;
+      z-index: 10;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-
     h1 {
-      font-size: 3em;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+      font-size: 1.8rem;
     }
-
-    #points {
-      font-size: 2.5em;
-      margin: 20px 0;
-      font-weight: bold;
+    #click-image {
+      width: 120px;
+      height: 120px;
+      background: url('https://media.tenor.com/hdHxFwuzAPUAAAAC/hollow-knight-the-knight.gif') center/contain no-repeat;
+      cursor: pointer;
+      transition: transform 0.2s;
+      z-index: 2;
+      margin: 0 auto;
+      display: block;
     }
-
-    #heroesContainer {
+    #click-image:active {
+      transform: scale(0.9);
+    }
+    .stats {
+      margin: 15px 0;
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.9rem;
+    }
+    .stats p {
+      margin: 6px 0;
+    }
+    .buttons-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
-      margin: 20px auto;
+      gap: 8px;
+      margin-top: 15px;
     }
-
-    .hero {
-      width: 120px;
-      height: 120px;
-      background: url('https://cdn.pixabay.com/photo/2021/04/22/10/57/hero-6198009_960_720.png') center/contain no-repeat;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .hero:active {
-      transform: scale(0.95);
-    }
-
     button {
-      background-color: #22c55e;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 15px 30px;
-      font-size: 1.2em;
+      padding: 8px 16px;
+      font-size: 0.85rem;
       cursor: pointer;
-      margin: 10px;
-      transition: background 0.3s, transform 0.2s;
+      background: linear-gradient(to bottom, #4caf50, #388e3c);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      transition: all 0.3s;
+      box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+      min-width: 160px;
     }
-
     button:hover {
-      background-color: #16a34a;
-      transform: scale(1.05);
+      background: linear-gradient(to bottom, #45a049, #2e7d32);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 7px rgba(0, 0, 0, 0.15);
     }
-
-    .upgrade {
-      background-color: #facc15;
-      color: #000;
+    button:active {
+      transform: translateY(1px);
     }
-
-    .upgrade:hover {
-      background-color: #eab308;
+    .effect {
+      position: absolute;
+      font-size: 18px;
+      animation: fly 1s ease-out forwards;
+      pointer-events: none;
+      z-index: 100;
     }
-
-    .info {
-      font-size: 1em;
-      margin-top: 20px;
-      opacity: 0.85;
+    @keyframes fly {
+      from {opacity: 1; transform: translateY(0);}
+      to {opacity: 0; transform: translateY(-80px);}
     }
-
-    .glow {
-      text-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e, 0 0 20px #22c55e;
+    .special {
+      background-color: #e91e63;
+      box-shadow: 0 0 12px #ff4081;
+      padding: 4px 8px;
+      border-radius: 15px;
+    }
+    .floating-helper {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: url('https://media.tenor.com/hdHxFwuzAPUAAAAC/hollow-knight-the-knight.gif') center/contain no-repeat;
+      animation: floatUp 10s linear infinite;
+      opacity: 0.3;
+      filter: blur(1px);
+      z-index: 1;
+    }
+    @keyframes floatUp {
+      0% { bottom: -100px; opacity: 0; }
+      10% { opacity: 0.3; }
+      90% { opacity: 0.3; }
+      100% { bottom: 110%; opacity: 0; }
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      animation: rise 15s infinite;
+      z-index: 0;
+    }
+    @keyframes rise {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 0.5; }
+      50% { transform: translateX(20px); }
+      100% { transform: translateY(-100vh) translateX(40px); opacity: 0; }
+    }
+    .hidden {
+      display: none;
+    }
+    .prestige-btn {
+      background: linear-gradient(to bottom, #ff5722, #e64a19);
+    }
+    .prestige-btn:hover {
+      background: linear-gradient(to bottom, #f4511e, #d84315);
+    }
+    .shop-btn {
+      background: linear-gradient(to bottom, #9c27b0, #7b1fa2);
+    }
+    .shop-btn:hover {
+      background: linear-gradient(to bottom, #8e24aa, #6a1b9a);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+      border: 1px solid #444;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      margin-top: 0;
+      color: #4caf50;
+      text-align: center;
+    }
+    .upgrade-item {
+      background-color: rgba(50, 50, 50, 0.5);
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 3px solid #4caf50;
+    }
+    .upgrade-item button {
+      width: 100%;
+      margin-top: 5px;
+    }
+    .bonus-image {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      cursor: pointer;
+      z-index: 5;
+      animation: floatHorizontal 10s linear infinite;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    @keyframes floatHorizontal {
+      0% { left: -100px; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { left: 110%; opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="glow">Idle Hollow Knight</h1>
-    <div id="points">Puntos: 0</div>
-    <div id="heroesContainer">
-      <div class="hero" id="mainHero" title="¡Haz clic en el héroe para ganar puntos!"></div>
+  <div class="game-container">
+    <h1>Idle Holou Nait</h1>
+    <div class="stats">
+      <p>Monedas: <span id="coins">0</span></p>
+      <p>Ganancia por segundo: <span id="cps">0</span></p>
+      <p>Ayudantes: <span id="helpers">0</span></p>
+      <p class="prestige-info hidden">Prestigio: <span id="prestige">0</span></p>
+      <p class="prestige-info hidden">Monedas de Prestigio: <span id="prestige-coins">0</span></p>
     </div>
-    <br>
-    <button class="upgrade" onclick="buyUpgrade(1)">Contratar Holou Nit (Auto +1/s) - <span id="cost1">50</span> pts</button>
-    <button class="upgrade" onclick="buyUpgrade(2)">Equipo de Nits (Auto +5/s) - <span id="cost2">200</span> pts</button>
-    <div class="info">
-      <p>Ganancia automática por segundo: <span id="autoPoints">0</span></p>
+    <div id="click-image"></div>
+    <div class="buttons-container">
+      <button onclick="buyHelper()">Comprar Nait (100)</button>
+      <button onclick="buy5Helpers()">Comprar 5 Naits (450)</button>
+      <button onclick="buyAutoClicker()">Comprar Auto Clicker (500)</button>
+      <button onclick="upgradeAutoClicker()">Mejorar Auto Clicker (1000)</button>
+      <button class="prestige-btn" onclick="doPrestige()">Prestigiar</button>
+      <button class="shop-btn" onclick="openShop()">Tienda de Prestigio</button>
     </div>
   </div>
 
+  <!-- Modal de Tienda -->
+  <div id="shop-modal" class="modal">
+    <div class="modal-content">
+      <h2>Tienda de Prestigio</h2>
+      <div id="upgrades-container">
+        <div class="upgrade-item">
+          <h3>Click Mejorado</h3>
+          <p>Cada click genera +1 moneda adicional</p>
+          <p>Costo: <span class="upgrade-cost">5</span> Monedas de Prestigio</p>
+          <button onclick="buyUpgrade('clickPower', 5)">Comprar</button>
+        </div>
+        <div class="upgrade-item">
+          <h3>Ayudantes Mejorados</h3>
+          <p>Los ayudantes generan +5 monedas por segundo</p>
+          <p>Costo: <span class="upgrade-cost">10</span> Monedas de Prestigio</p>
+          <button onclick="buyUpgrade('helperPower', 10)">Comprar</button>
+        </div>
+        <div class="upgrade-item">
+          <h3>Auto Clickers Mejorados</h3>
+          <p>Los auto clickers son un 50% más rápidos</p>
+          <p>Costo: <span class="upgrade-cost">15</span> Monedas de Prestigio</p>
+          <button onclick="buyUpgrade('autoClickerSpeed', 15)">Comprar</button>
+        </div>
+        <div class="upgrade-item">
+          <h3>Chance de Bonus</h3>
+          <p>Aumenta en 2% la probabilidad de obtener un bonus al hacer click</p>
+          <p>Costo: <span class="upgrade-cost">20</span> Monedas de Prestigio</p>
+          <button onclick="buyUpgrade('bonusChance', 20)">Comprar</button>
+        </div>
+        <div class="upgrade-item">
+          <h3>Prestigio Mejorado</h3>
+          <p>Ganas 25% más monedas de prestigio al hacer prestigio</p>
+          <p>Costo: <span class="upgrade-cost">30</span> Monedas de Prestigio</p>
+          <button onclick="buyUpgrade('prestigeBonus', 30)">Comprar</button>
+        </div>
+      </div>
+      <button style="margin-top: 20px;" onclick="closeShop()">Cerrar Tienda</button>
+    </div>
+  </div>
+
+  <audio id="special-sound" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
+  <audio id="bonus-sound" src="https://www.fesliyanstudios.com/play-mp3/401"></audio>
+
   <script>
-  let points = 0;
-  const upgrades = {
-    1: { amount: 1, cost: 50 },
-    2: { amount: 5, cost: 200 },
-  };
+    // Variables del juego
+    let coins = 0;
+    let coinsPerClick = 1;
+    let helpers = 0;
+    let prestige = 0;
+    let prestigeCoins = 0;
+    let cps = 0;
+    let autoClickers = 0;
+    let autoClickerSpeed = 1000;
+    let autoClickerPower = 1;
+    let bonusChance = 0.01;
 
-  const mainHero = document.getElementById("mainHero");
-  const heroesContainer = document.getElementById("heroesContainer");
+    // Mejoras permanentes
+    const permanentUpgrades = {
+      clickPower: 0,
+      helperPower: 0,
+      autoClickerSpeed: 0,
+      bonusChance: 0,
+      prestigeBonus: 0
+    };
 
-  const heroStatic = 'https://tse3.mm.bing.net/th/id/OIP.w1heLGLJzqsAsR6AzTAhKQAAAA?rs=1&pid=ImgDetMain'; 
-  const heroActive = 'https://media.tenor.com/hdHxFwuzAPUAAAAC/hollow-knight-the-knight.gif';
+    // Elementos del DOM
+    const coinsEl = document.getElementById('coins');
+    const cpsEl = document.getElementById('cps');
+    const helpersEl = document.getElementById('helpers');
+    const prestigeEl = document.getElementById('prestige');
+    const prestigeCoinsEl = document.getElementById('prestige-coins');
+    const clickImage = document.getElementById('click-image');
+    const prestigeInfoElements = document.querySelectorAll('.prestige-info');
+    const shopModal = document.getElementById('shop-modal');
 
-  mainHero.addEventListener("mousedown", () => {
-    mainHero.style.backgroundImage = `url('${heroActive}')`;
-  });
+    // Imágenes de bonus
+    const bonusImages = [
+      'https://media.tenor.com/ARhkeoyoG0AAAAAM/doro-dorothy.gif',
+      'https://i.makeagif.com/media/12-13-2023/9ExZ41.gif',
+      'https://media.tenor.com/jJtTtaMOnNYAAAAM/ryan-gosling-burp.gif'
+    ];
 
-  mainHero.addEventListener("mouseup", () => {
-    mainHero.style.backgroundImage = `url('${heroStatic}')`;
-    addPoints(1);
-  });
+    // Función para mostrar ayudantes flotantes según la cantidad
+    function spawnRandomHelpers() {
+      if (helpers > 0) {
+        const helpersToShow = Math.min(Math.floor(helpers / 5) + 1, 10);
+        for (let i = 0; i < helpersToShow; i++) {
+          setTimeout(() => {
+            spawnFloatingHelper();
+          }, Math.random() * 5000);
+        }
+      }
+    }
 
-  function updateUI() {
-    const heroCount = document.querySelectorAll(".hero").length;
-    const autoClick = heroCount - 1; // Excluye al héroe principal
-    document.getElementById("points").textContent = `Puntos: ${Math.floor(points)}`;
-    document.getElementById("autoPoints").textContent = autoClick;
-    document.getElementById("cost1").textContent = upgrades[1].cost;
-    document.getElementById("cost2").textContent = upgrades[2].cost;
-  }
+    // Función para spawnear imágenes de bonus
+    function spawnBonusImage() {
+      if (Math.random() < 0.005) { // 0.5% de chance de aparecer
+        const bonus = document.createElement('div');
+        bonus.className = 'bonus-image';
+        bonus.style.backgroundImage = `url('${bonusImages[Math.floor(Math.random() * bonusImages.length)]}')`;
+        bonus.style.top = `${Math.random() * 80 + 10}%`;
+        bonus.style.left = '-100px';
+        bonus.onclick = function() {
+          const rewards = [100, 500, 1000, 5000, 10000];
+          const reward = rewards[Math.floor(Math.random() * rewards.length)];
+          coins += reward;
+          animateClick(`+${formatNumber(reward)} Bonus!`, true);
+          document.getElementById('bonus-sound').play();
+          updateUI();
+          this.remove();
+        };
+        
+        document.body.appendChild(bonus);
+        setTimeout(() => {
+          bonus.style.opacity = '1';
+        }, 100);
+        
+        setTimeout(() => {
+          if (bonus.parentNode) {
+            bonus.style.opacity = '0';
+            setTimeout(() => {
+              if (bonus.parentNode) bonus.remove();
+            }, 500);
+          }
+        }, 10000);
+      }
+    }
 
-  function addPoints(amount) {
-    points += amount;
-    updateUI();
-  }
+    // Llamar a las funciones periódicamente
+    setInterval(spawnRandomHelpers, 5000);
+    setInterval(spawnBonusImage, 3000);
 
- function addHeroImage() {
-  const newHero = document.createElement("div");
-  newHero.className = "hero";
-  newHero.style.backgroundImage = `url('${heroActive}')`; // Siempre activo
-
-  document.getElementById("heroesContainer").appendChild(newHero);
-}
-
-
-  function adjustHeroSizes() {
-    const heroes = document.querySelectorAll(".hero");
-    const scale = Math.max(0.5, 1 - (heroes.length - 1) * 0.05); // mínimo 50%
-    heroes.forEach(hero => {
-      hero.style.transform = `scale(${scale})`;
+    // Evento de click en la imagen principal
+    clickImage.addEventListener('click', () => {
+      let isSpecial = Math.random() < (bonusChance + permanentUpgrades.bonusChance * 0.02);
+      let bonus = 0;
+      if (isSpecial) {
+        helpers++;
+        spawnFloatingHelper();
+        document.getElementById('special-sound').play();
+        animateClick('+1 Ayudante', true);
+        updateUI();
+        return;
+      }
+      bonus = coinsPerClick + permanentUpgrades.clickPower;
+      coins += bonus;
+      animateClick(`+${formatNumber(bonus)}`);
+      updateUI();
     });
-  }
 
-  function buyUpgrade(type) {
-    const upgrade = upgrades[type];
-    if (points >= upgrade.cost) {
-      points -= upgrade.cost;
-      for (let i = 0; i < upgrade.amount; i++) addHeroImage();
-      upgrade.cost = Math.floor(upgrade.cost * 1.5);
+    function animateClick(text, special = false) {
+      const span = document.createElement('span');
+      span.classList.add('effect');
+      if (special) span.classList.add('special');
+      span.innerText = text;
+      span.style.left = `${Math.random() * window.innerWidth * 0.8}px`;
+      span.style.top = `${Math.random() * window.innerHeight * 0.5}px`;
+      document.body.appendChild(span);
+      setTimeout(() => document.body.removeChild(span), 1000);
+    }
+
+    function spawnFloatingHelper() {
+      const helper = document.createElement('div');
+      helper.classList.add('floating-helper');
+      helper.style.left = `${Math.random() * 90 + 5}%`;
+      helper.style.bottom = '-100px';
+      document.body.appendChild(helper);
+      setTimeout(() => document.body.removeChild(helper), 10000);
+    }
+
+    function spawnBubbles() {
+      setInterval(() => {
+        const bubble = document.createElement('div');
+        const size = Math.random() * 25 + 5;
+        bubble.classList.add('bubble');
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 100}%`;
+        bubble.style.bottom = `${Math.random() * 20}px`;
+        bubble.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        document.body.appendChild(bubble);
+        setTimeout(() => document.body.removeChild(bubble), 15000);
+      }, 200);
+    }
+
+    function buyHelper() {
+      const cost = 100;
+      if (coins >= cost) {
+        helpers++;
+        coins -= cost;
+        spawnFloatingHelper();
+        updateUI();
+      }
+    }
+
+    function buy5Helpers() {
+      const cost = 450;
+      if (coins >= cost) {
+        helpers += 5;
+        coins -= cost;
+        for (let i = 0; i < 5; i++) {
+          spawnFloatingHelper();
+        }
+        updateUI();
+      }
+    }
+
+    function buyAutoClicker() {
+      const cost = 500;
+      if (coins >= cost) {
+        coins -= cost;
+        autoClickers++;
+        
+        const clickerInterval = setInterval(() => {
+          const power = autoClickerPower + permanentUpgrades.helperPower;
+          coins += power;
+          animateClick(`+${formatNumber(power)}`, false, true);
+          updateUI();
+        }, autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5));
+        
+        updateUI();
+      }
+    }
+
+    function upgradeAutoClicker() {
+      const cost = 1000;
+      if (coins >= cost && autoClickers > 0) {
+        coins -= cost;
+        autoClickerPower += 10;
+        animateClick(`+10 Poder (Total: ${autoClickerPower})`, true);
+        updateUI();
+      }
+    }
+
+    function doPrestige() {
+      const costs = [1000, 5000, 100000, 500000, 1000000, 1e7, 1e8];
+      const gains = [50, 500, 1500, 5000, 20000, 100000, 500000];
+      const nextCost = costs[prestige] || Math.pow(10, prestige + 3);
+      const nextGain = gains[prestige] || Math.floor(50 * Math.pow(prestige + 1, 2));
+
+      if (coins >= nextCost) {
+        const prestigeBonus = 1 + permanentUpgrades.prestigeBonus * 0.25;
+        coins = 0;
+        helpers = 0;
+        autoClickers = 0;
+        autoClickerPower = 1;
+        prestige++;
+        prestigeCoins += Math.floor(prestigeBonus);
+        cps = nextGain;
+        
+        if (prestigeInfoElements[0].classList.contains('hidden')) {
+          prestigeInfoElements.forEach(el => el.classList.remove('hidden'));
+        }
+        
+        animateClick(`Prestigio ${prestige}! +${formatNumber(nextGain)} CPS`, true);
+        updateUI();
+      } else {
+        alert(`Necesitas ${formatNumber(nextCost)} monedas para prestigiar.`);
+      }
+    }
+
+    // Funciones de la tienda
+    function openShop() {
+      shopModal.style.display = 'flex';
+    }
+
+    function closeShop() {
+      shopModal.style.display = 'none';
+    }
+
+    function buyUpgrade(upgradeType, cost) {
+      if (prestigeCoins >= cost) {
+        prestigeCoins -= cost;
+        permanentUpgrades[upgradeType]++;
+        updateUI();
+        animateClick(`Mejora comprada!`, true);
+      } else {
+        alert(`No tienes suficientes monedas de prestigio. Necesitas ${cost}.`);
+      }
+    }
+
+    function updateUI() {
+      coinsEl.innerText = formatNumber(coins);
+      const helperPower = 1 + permanentUpgrades.helperPower * 5;
+      const clickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
+      cpsEl.innerText = formatNumber(cps + (helpers * helperPower) + clickerPower);
+      helpersEl.innerText = formatNumber(helpers);
+      prestigeEl.innerText = formatNumber(prestige);
+      prestigeCoinsEl.innerText = formatNumber(prestigeCoins);
+    }
+
+    function loop() {
+      const helperPower = 1 + permanentUpgrades.helperPower * 5;
+      const clickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
+      coins += cps + (helpers * helperPower) + clickerPower;
       updateUI();
     }
-  }
 
-  // Auto points every second based on number of extra heroes
-  setInterval(() => {
-    const heroCount = document.querySelectorAll(".hero").length;
-    const autoPoints = heroCount - 1; // excluye al principal
-    addPoints(autoPoints);
-  }, 1000);
+    setInterval(loop, 1000);
+    spawnBubbles();
 
-  // Iniciar
+    function formatNumber(num) {
+      const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "UDc", "DDc"];
+      if (num < 1000) return Math.floor(num).toString();
+      const tier = Math.floor(Math.log10(num) / 3) || 0;
+      const suffix = suffixes[tier];
+      const scale = Math.pow(10, tier * 3);
+      const scaled = num / scale;
+      return scaled.toFixed(2) + suffix;
+    }
+  </script>
+</body>
+</html>
   updateUI();
 </script>
 </body>
