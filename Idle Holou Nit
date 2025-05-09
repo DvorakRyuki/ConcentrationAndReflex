@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Idle Holou Nait</title>
+  <title>Clicker Knight</title>
   <style>
     body {
       margin: 0;
@@ -49,6 +49,9 @@
     #click-image:active {
       transform: scale(0.9);
     }
+    #click-image:hover {
+      transform: scale(1.05);
+    }
     .stats {
       margin: 15px 0;
       background-color: rgba(0, 0, 0, 0.3);
@@ -93,6 +96,15 @@
       animation: fly 1s ease-out forwards;
       pointer-events: none;
       z-index: 100;
+    }
+    .click-effect {
+      color: #4caf50;
+    }
+    .helper-effect {
+      color: #2196F3;
+    }
+    .auto-effect {
+      color: #FFC107;
     }
     @keyframes fly {
       from {opacity: 1; transform: translateY(0);}
@@ -147,6 +159,18 @@
     }
     .shop-btn:hover {
       background: linear-gradient(to bottom, #8e24aa, #6a1b9a);
+    }
+    .helper-upgrade-btn {
+      background: linear-gradient(to bottom, #2196F3, #1976D2);
+    }
+    .helper-upgrade-btn:hover {
+      background: linear-gradient(to bottom, #1E88E5, #1565C0);
+    }
+    .massive-helper-btn {
+      background: linear-gradient(to bottom, #00bcd4, #0097a7);
+    }
+    .massive-helper-btn:hover {
+      background: linear-gradient(to bottom, #00acc1, #00838f);
     }
     .modal {
       display: none;
@@ -209,20 +233,26 @@
 </head>
 <body>
   <div class="game-container">
-    <h1>Idle Holou Nait</h1>
+    <h1>Clicker Knight v1.5</h1>
     <div class="stats">
       <p>Monedas: <span id="coins">0</span></p>
       <p>Ganancia por segundo: <span id="cps">0</span></p>
-      <p>Ayudantes: <span id="helpers">0</span></p>
+      <p>Ayudantes: <span id="helpers">0</span> (Producción: <span id="helper-power">1</span>/s)</p>
+      <p>Auto Clickers: <span id="auto-clickers">0</span> (Poder: <span id="auto-clicker-power">1</span>)</p>
       <p class="prestige-info hidden">Prestigio: <span id="prestige">0</span></p>
       <p class="prestige-info hidden">Monedas de Prestigio: <span id="prestige-coins">0</span></p>
+      <p class="prestige-info hidden">Multiplicador de Prestigio: <span id="prestige-multiplier">1</span>x</p>
     </div>
     <div id="click-image"></div>
     <div class="buttons-container">
-      <button onclick="buyHelper()">Comprar Nait (100)</button>
-      <button onclick="buy5Helpers()">Comprar 5 Naits (450)</button>
-      <button onclick="buyAutoClicker()">Comprar Auto Clicker (500)</button>
-      <button onclick="upgradeAutoClicker()">Mejorar Auto Clicker (1000)</button>
+      <button onclick="buyHelper()">Comprar Ayudante (<span id="helper-cost">100</span>)</button>
+      <button onclick="buy5Helpers()">Comprar 5 Ayudantes (<span id="helper-5-cost">450</span>)</button>
+      <button id="buy10-helpers-btn" class="massive-helper-btn hidden" onclick="buy10Helpers()">Comprar 10 Ayudantes (<span id="helper-10-cost">900</span>)</button>
+      <button id="buy100-helpers-btn" class="massive-helper-btn hidden" onclick="buy100Helpers()">Comprar 100 Ayudantes (<span id="helper-100-cost">8000</span>)</button>
+      <button id="buy1000-helpers-btn" class="massive-helper-btn hidden" onclick="buy1000Helpers()">Comprar 1000 Ayudantes (<span id="helper-1000-cost">70000</span>)</button>
+      <button class="helper-upgrade-btn" onclick="upgradeHelper()">Mejorar Ayudantes (<span id="helper-upgrade-cost">500</span>)</button>
+      <button onclick="buyAutoClicker()">Comprar Auto Clicker (<span id="auto-clicker-cost">500</span>)</button>
+      <button onclick="upgradeAutoClicker()">Mejorar Auto Clicker (<span id="auto-clicker-upgrade-cost">1000</span>)</button>
       <button class="prestige-btn" onclick="doPrestige()">Prestigiar</button>
       <button class="shop-btn" onclick="openShop()">Tienda de Prestigio</button>
     </div>
@@ -235,31 +265,31 @@
       <div id="upgrades-container">
         <div class="upgrade-item">
           <h3>Click Mejorado</h3>
-          <p>Cada click genera +1 moneda adicional</p>
+          <p>Cada click genera +1 moneda adicional (Nivel <span id="click-power-level">0</span>)</p>
           <p>Costo: <span class="upgrade-cost">5</span> Monedas de Prestigio</p>
           <button onclick="buyUpgrade('clickPower', 5)">Comprar</button>
         </div>
         <div class="upgrade-item">
           <h3>Ayudantes Mejorados</h3>
-          <p>Los ayudantes generan +5 monedas por segundo</p>
+          <p>Los ayudantes generan +5 monedas por segundo (Nivel <span id="helper-power-level">0</span>)</p>
           <p>Costo: <span class="upgrade-cost">10</span> Monedas de Prestigio</p>
           <button onclick="buyUpgrade('helperPower', 10)">Comprar</button>
         </div>
         <div class="upgrade-item">
           <h3>Auto Clickers Mejorados</h3>
-          <p>Los auto clickers son un 50% más rápidos</p>
+          <p>Los auto clickers son un 50% más rápidos (Nivel <span id="auto-clicker-speed-level">0</span>)</p>
           <p>Costo: <span class="upgrade-cost">15</span> Monedas de Prestigio</p>
           <button onclick="buyUpgrade('autoClickerSpeed', 15)">Comprar</button>
         </div>
         <div class="upgrade-item">
           <h3>Chance de Bonus</h3>
-          <p>Aumenta en 2% la probabilidad de obtener un bonus al hacer click</p>
+          <p>Aumenta en 2% la probabilidad de obtener un bonus al hacer click (Nivel <span id="bonus-chance-level">0</span>)</p>
           <p>Costo: <span class="upgrade-cost">20</span> Monedas de Prestigio</p>
           <button onclick="buyUpgrade('bonusChance', 20)">Comprar</button>
         </div>
         <div class="upgrade-item">
           <h3>Prestigio Mejorado</h3>
-          <p>Ganas 25% más monedas de prestigio al hacer prestigio</p>
+          <p>Ganas 25% más monedas de prestigio al hacer prestigio (Nivel <span id="prestige-bonus-level">0</span>)</p>
           <p>Costo: <span class="upgrade-cost">30</span> Monedas de Prestigio</p>
           <button onclick="buyUpgrade('prestigeBonus', 30)">Comprar</button>
         </div>
@@ -270,19 +300,34 @@
 
   <audio id="special-sound" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
   <audio id="bonus-sound" src="https://www.fesliyanstudios.com/play-mp3/401"></audio>
+  <audio id="prestige-sound" src="https://www.fesliyanstudios.com/play-mp3/402"></audio>
 
   <script>
     // Variables del juego
     let coins = 0;
     let coinsPerClick = 1;
     let helpers = 0;
+    let helperPower = 1;
     let prestige = 0;
     let prestigeCoins = 0;
     let cps = 0;
     let autoClickers = 0;
-    let autoClickerSpeed = 1000;
     let autoClickerPower = 1;
+    let autoClickerSpeed = 1000;
     let bonusChance = 0.01;
+    let prestigeMultiplier = 1;
+    let hoverClickEnabled = false;
+    let hoverClickInterval;
+    
+    // Costos base
+    let helperCost = 100;
+    let helper5Cost = 450;
+    let helper10Cost = 900;
+    let helper100Cost = 8000;
+    let helper1000Cost = 70000;
+    let helperUpgradeCost = 500;
+    let autoClickerCost = 500;
+    let autoClickerUpgradeCost = 1000;
 
     // Mejoras permanentes
     const permanentUpgrades = {
@@ -297,18 +342,55 @@
     const coinsEl = document.getElementById('coins');
     const cpsEl = document.getElementById('cps');
     const helpersEl = document.getElementById('helpers');
+    const helperPowerEl = document.getElementById('helper-power');
     const prestigeEl = document.getElementById('prestige');
     const prestigeCoinsEl = document.getElementById('prestige-coins');
+    const prestigeMultiplierEl = document.getElementById('prestige-multiplier');
     const clickImage = document.getElementById('click-image');
     const prestigeInfoElements = document.querySelectorAll('.prestige-info');
     const shopModal = document.getElementById('shop-modal');
+    const autoClickersEl = document.getElementById('auto-clickers');
+    const autoClickerPowerEl = document.getElementById('auto-clicker-power');
+    const helperCostEl = document.getElementById('helper-cost');
+    const helper5CostEl = document.getElementById('helper-5-cost');
+    const helper10CostEl = document.getElementById('helper-10-cost');
+    const helper100CostEl = document.getElementById('helper-100-cost');
+    const helper1000CostEl = document.getElementById('helper-1000-cost');
+    const helperUpgradeCostEl = document.getElementById('helper-upgrade-cost');
+    const autoClickerCostEl = document.getElementById('auto-clicker-cost');
+    const autoClickerUpgradeCostEl = document.getElementById('auto-clicker-upgrade-cost');
+    const buy10HelpersBtn = document.getElementById('buy10-helpers-btn');
+    const buy100HelpersBtn = document.getElementById('buy100-helpers-btn');
+    const buy1000HelpersBtn = document.getElementById('buy1000-helpers-btn');
 
     // Imágenes de bonus
     const bonusImages = [
       'https://media.tenor.com/ARhkeoyoG0AAAAAM/doro-dorothy.gif',
-      'https://i.makeagif.com/media/12-13-2023/9ExZ41.gif',
-      'https://media.tenor.com/jJtTtaMOnNYAAAAM/ryan-gosling-burp.gif'
+      'https://media.tenor.com/jJtTtaMOnNYAAAAM/ryan-gosling-burp.gif',
+      'https://media1.tenor.com/m/vJM3Z8HaScwAAAAC/clap-joe-hendry.gif'
     ];
+
+    // Recompensas de bonus
+    const bonusRewards = [
+      { type: 'coins', min: 100, max: 10000, multiplier: 1 },
+      { type: 'prestigeCoins', min: 1, max: 5, multiplier: 1 },
+      { type: 'helpers', min: 1, max: 5, multiplier: 1 },
+      { type: 'autoClickerPower', min: 1, max: 3, multiplier: 1 },
+      { type: 'helperPower', min: 1, max: 3, multiplier: 1 }
+    ];
+
+    // Función para calcular el costo de prestigio
+    function calculatePrestigeCost() {
+      return Math.floor(1000 * Math.pow(5, prestige) * (1 + coins / 100000));
+    }
+
+    // Función para calcular la recompensa de prestigio
+    function calculatePrestigeReward() {
+      const baseReward = 50 * Math.pow(2, prestige);
+      const coinsBonus = Math.sqrt(coins) / 100;
+      const multiplier = 1 + permanentUpgrades.prestigeBonus * 0.25;
+      return Math.floor((baseReward + coinsBonus) * multiplier * prestigeMultiplier);
+    }
 
     // Función para mostrar ayudantes flotantes según la cantidad
     function spawnRandomHelpers() {
@@ -324,17 +406,45 @@
 
     // Función para spawnear imágenes de bonus
     function spawnBonusImage() {
-      if (Math.random() < 0.005) { // 0.5% de chance de aparecer
+      if (Math.random() < 0.02) { // 2% de chance de aparecer
         const bonus = document.createElement('div');
         bonus.className = 'bonus-image';
         bonus.style.backgroundImage = `url('${bonusImages[Math.floor(Math.random() * bonusImages.length)]}')`;
         bonus.style.top = `${Math.random() * 80 + 10}%`;
         bonus.style.left = '-100px';
         bonus.onclick = function() {
-          const rewards = [100, 500, 1000, 5000, 10000];
-          const reward = rewards[Math.floor(Math.random() * rewards.length)];
-          coins += reward;
-          animateClick(`+${formatNumber(reward)} Bonus!`, true);
+          const rewardType = bonusRewards[Math.floor(Math.random() * bonusRewards.length)];
+          let rewardAmount = Math.floor(Math.random() * (rewardType.max - rewardType.min + 1)) + rewardType.min;
+          rewardAmount = Math.floor(rewardAmount * rewardType.multiplier);
+          
+          let message = "";
+          switch(rewardType.type) {
+            case 'coins':
+              coins += rewardAmount;
+              message = `+${formatNumber(rewardAmount)} Monedas!`;
+              break;
+            case 'prestigeCoins':
+              prestigeCoins += rewardAmount;
+              message = `+${rewardAmount} Moneda(s) de Prestigio!`;
+              break;
+            case 'helpers':
+              helpers += rewardAmount;
+              message = `+${rewardAmount} Ayudante(s)!`;
+              for (let i = 0; i < rewardAmount; i++) {
+                spawnFloatingHelper();
+              }
+              break;
+            case 'autoClickerPower':
+              autoClickerPower += rewardAmount;
+              message = `+${rewardAmount} Poder de AutoClicker!`;
+              break;
+            case 'helperPower':
+              helperPower += rewardAmount;
+              message = `+${rewardAmount} Poder de Ayudantes!`;
+              break;
+          }
+          
+          animateClick(message, true);
           document.getElementById('bonus-sound').play();
           updateUI();
           this.remove();
@@ -356,9 +466,27 @@
       }
     }
 
+    // Función para manejar el hover sobre la imagen principal
+    function setupHoverClick() {
+      clickImage.addEventListener('mouseenter', () => {
+        if (!hoverClickEnabled) return;
+        hoverClickInterval = setInterval(() => {
+          const bonus = coinsPerClick + permanentUpgrades.clickPower;
+          coins += bonus * prestigeMultiplier;
+          animateClick(`+${formatNumber(bonus * prestigeMultiplier)}`, false, 'click');
+          updateUI();
+        }, 200); // 5 clicks por segundo
+      });
+
+      clickImage.addEventListener('mouseleave', () => {
+        clearInterval(hoverClickInterval);
+      });
+    }
+
     // Llamar a las funciones periódicamente
     setInterval(spawnRandomHelpers, 5000);
-    setInterval(spawnBonusImage, 3000);
+    setInterval(spawnBonusImage, 2000);
+    setupHoverClick();
 
     // Evento de click en la imagen principal
     clickImage.addEventListener('click', () => {
@@ -373,15 +501,31 @@
         return;
       }
       bonus = coinsPerClick + permanentUpgrades.clickPower;
-      coins += bonus;
-      animateClick(`+${formatNumber(bonus)}`);
+      coins += bonus * prestigeMultiplier;
+      animateClick(`+${formatNumber(bonus * prestigeMultiplier)}`, false, 'click');
       updateUI();
     });
 
-    function animateClick(text, special = false) {
+    function animateClick(text, special = false, type = 'click') {
       const span = document.createElement('span');
       span.classList.add('effect');
-      if (special) span.classList.add('special');
+      
+      if (special) {
+        span.classList.add('special');
+      } else {
+        switch(type) {
+          case 'click':
+            span.classList.add('click-effect');
+            break;
+          case 'helper':
+            span.classList.add('helper-effect');
+            break;
+          case 'auto':
+            span.classList.add('auto-effect');
+            break;
+        }
+      }
+      
       span.innerText = text;
       span.style.left = `${Math.random() * window.innerWidth * 0.8}px`;
       span.style.top = `${Math.random() * window.innerHeight * 0.5}px`;
@@ -414,37 +558,100 @@
     }
 
     function buyHelper() {
-      const cost = 100;
-      if (coins >= cost) {
+      if (coins >= helperCost) {
         helpers++;
-        coins -= cost;
+        coins -= helperCost;
+        helperCost = Math.floor(helperCost * 1.15);
+        helper5Cost = Math.floor(helperCost * 4.5);
+        helper10Cost = Math.floor(helperCost * 9);
         spawnFloatingHelper();
         updateUI();
       }
     }
 
     function buy5Helpers() {
-      const cost = 450;
-      if (coins >= cost) {
-        helpers += 5;
-        coins -= cost;
-        for (let i = 0; i < 5; i++) {
+      if (coins >= helper5Cost) {
+        const helpersToAdd = 5;
+        helpers += helpersToAdd;
+        coins -= helper5Cost;
+        helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
+        helper5Cost = Math.floor(helperCost * 4.5);
+        helper10Cost = Math.floor(helperCost * 9);
+        for (let i = 0; i < helpersToAdd; i++) {
           spawnFloatingHelper();
         }
         updateUI();
       }
     }
 
+    function buy10Helpers() {
+      if (coins >= helper10Cost) {
+        const helpersToAdd = 10;
+        helpers += helpersToAdd;
+        coins -= helper10Cost;
+        helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
+        helper5Cost = Math.floor(helperCost * 4.5);
+        helper10Cost = Math.floor(helperCost * 9);
+        for (let i = 0; i < helpersToAdd; i++) {
+          spawnFloatingHelper();
+        }
+        updateUI();
+      }
+    }
+
+    function buy100Helpers() {
+      if (coins >= helper100Cost) {
+        const helpersToAdd = 100;
+        helpers += helpersToAdd;
+        coins -= helper100Cost;
+        helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
+        helper5Cost = Math.floor(helperCost * 4.5);
+        helper10Cost = Math.floor(helperCost * 9);
+        helper100Cost = Math.floor(helperCost * 80);
+        for (let i = 0; i < Math.min(helpersToAdd, 20); i++) {
+          spawnFloatingHelper();
+        }
+        updateUI();
+      }
+    }
+
+    function buy1000Helpers() {
+      if (coins >= helper1000Cost) {
+        const helpersToAdd = 1000;
+        helpers += helpersToAdd;
+        coins -= helper1000Cost;
+        helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
+        helper5Cost = Math.floor(helperCost * 4.5);
+        helper10Cost = Math.floor(helperCost * 9);
+        helper100Cost = Math.floor(helperCost * 80);
+        helper1000Cost = Math.floor(helperCost * 700);
+        for (let i = 0; i < Math.min(helpersToAdd, 20); i++) {
+          spawnFloatingHelper();
+        }
+        updateUI();
+      }
+    }
+
+    function upgradeHelper() {
+      if (coins >= helperUpgradeCost) {
+        coins -= helperUpgradeCost;
+        helperPower++;
+        helperUpgradeCost = Math.floor(helperUpgradeCost * 2);
+        animateClick(`+1 Poder de Ayudante (Total: ${helperPower})`, false, 'helper');
+        updateUI();
+      }
+    }
+
     function buyAutoClicker() {
-      const cost = 500;
-      if (coins >= cost) {
-        coins -= cost;
+      if (coins >= autoClickerCost) {
+        coins -= autoClickerCost;
         autoClickers++;
+        autoClickerCost = Math.floor(autoClickerCost * 1.5);
         
         const clickerInterval = setInterval(() => {
-          const power = autoClickerPower + permanentUpgrades.helperPower;
+          const power = autoClickerPower * prestigeMultiplier;
           coins += power;
-          animateClick(`+${formatNumber(power)}`, false, true);
+          animateClick(`+${formatNumber(power)}`, false, 'auto');
           updateUI();
         }, autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5));
         
@@ -453,44 +660,80 @@
     }
 
     function upgradeAutoClicker() {
-      const cost = 1000;
-      if (coins >= cost && autoClickers > 0) {
-        coins -= cost;
-        autoClickerPower += 10;
-        animateClick(`+10 Poder (Total: ${autoClickerPower})`, true);
+      if (coins >= autoClickerUpgradeCost && autoClickers > 0) {
+        coins -= autoClickerUpgradeCost;
+        autoClickerPower += 5;
+        autoClickerUpgradeCost = Math.floor(autoClickerUpgradeCost * 2.5);
+        animateClick(`+5 Poder (Total: ${autoClickerPower})`, false, 'auto');
         updateUI();
       }
     }
 
     function doPrestige() {
-      const costs = [1000, 5000, 100000, 500000, 1000000, 1e7, 1e8];
-      const gains = [50, 500, 1500, 5000, 20000, 100000, 500000];
-      const nextCost = costs[prestige] || Math.pow(10, prestige + 3);
-      const nextGain = gains[prestige] || Math.floor(50 * Math.pow(prestige + 1, 2));
-
-      if (coins >= nextCost) {
-        const prestigeBonus = 1 + permanentUpgrades.prestigeBonus * 0.25;
+      const prestigeCost = calculatePrestigeCost();
+      
+      if (coins >= prestigeCost) {
+        const reward = calculatePrestigeReward();
+        
         coins = 0;
         helpers = 0;
+        helperPower = 1;
         autoClickers = 0;
         autoClickerPower = 1;
         prestige++;
-        prestigeCoins += Math.floor(prestigeBonus);
-        cps = nextGain;
+        prestigeCoins += reward;
+        prestigeMultiplier = 1 + prestige * 0.5;
+        
+        // Resetear costos
+        helperCost = 100;
+        helper5Cost = 450;
+        helper10Cost = 900;
+        helper100Cost = 8000;
+        helper1000Cost = 70000;
+        helperUpgradeCost = 500;
+        autoClickerCost = 500;
+        autoClickerUpgradeCost = 1000;
         
         if (prestigeInfoElements[0].classList.contains('hidden')) {
           prestigeInfoElements.forEach(el => el.classList.remove('hidden'));
         }
         
-        animateClick(`Prestigio ${prestige}! +${formatNumber(nextGain)} CPS`, true);
+        // Activar botones masivos según progreso
+        checkMassiveButtons();
+        
+        document.getElementById('prestige-sound').play();
+        animateClick(`Prestigio ${prestige}! +${reward} Monedas de Prestigio`, true);
         updateUI();
       } else {
-        alert(`Necesitas ${formatNumber(nextCost)} monedas para prestigiar.`);
+        alert(`Necesitas ${formatNumber(prestigeCost)} monedas para prestigiar.`);
+      }
+    }
+
+    // Función para verificar qué botones masivos mostrar
+    function checkMassiveButtons() {
+      if (prestige >= 1 && coins >= 5000) {
+        buy10HelpersBtn.classList.remove('hidden');
+        hoverClickEnabled = true;
+      }
+      
+      if (prestige >= 5 && coins >= 50000) {
+        buy100HelpersBtn.classList.remove('hidden');
+      }
+      
+      if (prestige >= 20 && coins >= 250000) {
+        buy1000HelpersBtn.classList.remove('hidden');
       }
     }
 
     // Funciones de la tienda
     function openShop() {
+      // Actualizar niveles en la tienda
+      document.getElementById('click-power-level').textContent = permanentUpgrades.clickPower;
+      document.getElementById('helper-power-level').textContent = permanentUpgrades.helperPower;
+      document.getElementById('auto-clicker-speed-level').textContent = permanentUpgrades.autoClickerSpeed;
+      document.getElementById('bonus-chance-level').textContent = permanentUpgrades.bonusChance;
+      document.getElementById('prestige-bonus-level').textContent = permanentUpgrades.prestigeBonus;
+      
       shopModal.style.display = 'flex';
     }
 
@@ -498,38 +741,61 @@
       shopModal.style.display = 'none';
     }
 
-    function buyUpgrade(upgradeType, cost) {
+    function buyUpgrade(upgradeType, baseCost) {
+      const cost = baseCost * (permanentUpgrades[upgradeType] + 1);
       if (prestigeCoins >= cost) {
         prestigeCoins -= cost;
         permanentUpgrades[upgradeType]++;
         updateUI();
         animateClick(`Mejora comprada!`, true);
+        openShop(); // Actualizar la tienda
       } else {
         alert(`No tienes suficientes monedas de prestigio. Necesitas ${cost}.`);
       }
     }
 
     function updateUI() {
-      coinsEl.innerText = formatNumber(coins);
-      const helperPower = 1 + permanentUpgrades.helperPower * 5;
-      const clickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
-      cpsEl.innerText = formatNumber(cps + (helpers * helperPower) + clickerPower);
-      helpersEl.innerText = formatNumber(helpers);
-      prestigeEl.innerText = formatNumber(prestige);
-      prestigeCoinsEl.innerText = formatNumber(prestigeCoins);
+      coinsEl.textContent = formatNumber(coins);
+      
+      const totalHelperPower = helperPower + permanentUpgrades.helperPower * 5;
+      const totalClickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
+      const totalCPS = (cps + (helpers * totalHelperPower) + totalClickerPower) * prestigeMultiplier;
+      
+      cpsEl.textContent = formatNumber(totalCPS);
+      helpersEl.textContent = formatNumber(helpers);
+      helperPowerEl.textContent = totalHelperPower;
+      autoClickersEl.textContent = autoClickers;
+      autoClickerPowerEl.textContent = autoClickerPower;
+      prestigeEl.textContent = prestige;
+      prestigeCoinsEl.textContent = prestigeCoins;
+      prestigeMultiplierEl.textContent = prestigeMultiplier.toFixed(1);
+      
+      // Actualizar costos en los botones
+      helperCostEl.textContent = helperCost;
+      helper5CostEl.textContent = helper5Cost;
+      helper10CostEl.textContent = helper10Cost;
+      helper100CostEl.textContent = helper100Cost;
+      helper1000CostEl.textContent = helper1000Cost;
+      helperUpgradeCostEl.textContent = helperUpgradeCost;
+      autoClickerCostEl.textContent = autoClickerCost;
+      autoClickerUpgradeCostEl.textContent = autoClickerUpgradeCost;
+      
+      // Verificar botones masivos
+      checkMassiveButtons();
     }
 
-    function loop() {
-      const helperPower = 1 + permanentUpgrades.helperPower * 5;
-      const clickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
-      coins += cps + (helpers * helperPower) + clickerPower;
+    function gameLoop() {
+      const totalHelperPower = helperPower + permanentUpgrades.helperPower * 5;
+      const totalClickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
+      coins += (cps + (helpers * totalHelperPower) + totalClickerPower) * prestigeMultiplier;
       updateUI();
     }
 
-    setInterval(loop, 1000);
+    setInterval(gameLoop, 1000);
     spawnBubbles();
 
     function formatNumber(num) {
+      if (typeof num !== 'number') num = parseFloat(num) || 0;
       const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "UDc", "DDc"];
       if (num < 1000) return Math.floor(num).toString();
       const tier = Math.floor(Math.log10(num) / 3) || 0;
@@ -541,7 +807,4 @@
   </script>
 </body>
 </html>
-  updateUI();
-</script>
-</body>
 </html>
