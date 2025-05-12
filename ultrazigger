@@ -329,8 +329,8 @@
     /* JEFE FINAL */
     .boss {
       position: absolute;
-      width: 200px;
-      height: 200px;
+      width: 300px;
+      height: 300px;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
@@ -345,7 +345,7 @@
       position: absolute;
       bottom: -30px;
       width: 100%;
-      height: 10px;
+      height: 15px;
       background-color: #333;
       border-radius: 5px;
       z-index: 901;
@@ -510,6 +510,32 @@
       box-shadow: 0 0 10px #4CAF50;
     }
 
+    /* Efecto para skin épica */
+    .epic-target {
+      animation: epicGlow 2s infinite alternate;
+    }
+    
+    @keyframes epicGlow {
+      0% { filter: drop-shadow(0 0 5px #ff00ff); }
+      100% { filter: drop-shadow(0 0 20px #00ffff); }
+    }
+    
+    /* Efecto para skin alien */
+    .alien-target {
+      animation: alienFloat 3s infinite alternate;
+    }
+    
+    @keyframes alienFloat {
+      0% { transform: translateY(0) rotate(-5deg); }
+      100% { transform: translateY(15px) rotate(5deg); }
+    }
+    
+    /* Nuevo estilo para misiones completadas */
+    .mission-completed {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    
     /* BOTONES DE MENÚ */
     .menu-button {
       position: absolute;
@@ -608,6 +634,24 @@
       10% { opacity: 1; transform: translateX(-50%) translateY(0); }
       90% { opacity: 1; transform: translateX(-50%) translateY(0); }
       100% { opacity: 0; transform: translateX(-50%) translateY(-50px); }
+    }
+
+    /* COMBO EFFECT */
+    .combo-effect {
+      position: absolute;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff00ff;
+      text-shadow: 0 0 5px #000;
+      z-index: 1000;
+      animation: comboPop 0.5s forwards;
+      pointer-events: none;
+    }
+
+    @keyframes comboPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
     }
   </style>
 </head>
@@ -711,8 +755,28 @@
       <button class="claim-btn" data-tier="5">Reclamar</button>
     </div>
     <div class="battle-pass-tier">
+      <span>Nivel 7: <span class="tier-reward">+200 💰</span></span>
+      <button class="claim-btn" data-tier="7">Reclamar</button>
+    </div>
+    <div class="battle-pass-tier">
       <span>Nivel 10: <span class="tier-reward">Cursor Dorado</span></span>
       <button class="claim-btn" data-tier="10">Reclamar</button>
+    </div>
+    <div class="battle-pass-tier">
+      <span>Nivel 12: <span class="tier-reward">+1 Vida Extra</span></span>
+      <button class="claim-btn" data-tier="12">Reclamar</button>
+    </div>
+    <div class="battle-pass-tier">
+      <span>Nivel 15: <span class="tier-reward">Skin Legendaria</span></span>
+      <button class="claim-btn" data-tier="15">Reclamar</button>
+    </div>
+    <div class="battle-pass-tier">
+      <span>Nivel 18: <span class="tier-reward">+500 💰</span></span>
+      <button class="claim-btn" data-tier="18">Reclamar</button>
+    </div>
+    <div class="battle-pass-tier">
+      <span>Nivel 20: <span class="tier-reward">Cursor Legendario</span></span>
+      <button class="claim-btn" data-tier="20">Reclamar</button>
     </div>
     <button id="close-battle-pass">Cerrar</button>
   </div>
@@ -720,11 +784,21 @@
   <!-- MENÚ DE SKINS -->
   <div id="skins-menu">
     <h2>🎨 Skins Disponibles</h2>
-    <div class="skin-option selected" data-skin="default" style="background-image: url('https://i.gifer.com/origin/9e/9e578407e529c3e5cc3c2a3f00d9a991_w200.gif')"></div>
-    <div class="skin-option" data-skin="alien" style="background-image: url('https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif')"></div>
-    <div class="skin-option" data-skin="epic" style="background-image: url('https://media1.tenor.com/m/KdhfuQxbq-cAAAAd/furina-genshin-impact.gif')"></div>
+    <div class="skin-option selected" data-skin="default" style="background-image: url('https://i.gifer.com/origin/9e/9e578407e529c3e5cc3c2a3f00d9a991_w200.gif')">
+      <div class="skin-name">Básica</div>
+    </div>
+    <div class="skin-option" data-skin="alien" style="background-image: url('https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif')">
+      <div class="skin-name">Alien</div>
+    </div>
+    <div class="skin-option" data-skin="epic" style="background-image: url('https://media1.tenor.com/m/KdhfuQxbq-cAAAAd/furina-genshin-impact.gif')">
+      <div class="skin-name">Épica</div>
+    </div>
+    <div class="skin-option" data-skin="legendary" style="background-image: url('https://media1.tenor.com/m/x8v50dQkwsAAAAAd/demon-slayer-tanjiro.gif')">
+      <div class="skin-name">Legendaria</div>
+    </div>
     <button id="close-skins">Cerrar</button>
   </div>
+
 
   <!-- CURSOR PERSONALIZADO -->
   <div class="custom-cursor" id="custom-cursor"></div>
@@ -803,6 +877,7 @@
     const trailLength = 15;
     let trailIndex = 0;
     let mouseX = 0, mouseY = 0;
+    
 
     // IMÁGENES
     const imageNormal = 'https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0';
@@ -842,6 +917,8 @@
       }
     };
 
+    
+
     // MEJORAS COMPRADAS
     const upgrades = {
       extraLife: { active: false },
@@ -860,11 +937,25 @@
     };
 
     // MISIONES DIARIAS
+    
     const dailyMissions = {
       click50: { goal: 50, reward: 100, completed: false, progress: 0, desc: "Haz 50 clicks" },
       avoidTraps: { goal: 10, reward: 150, completed: false, progress: 0, desc: "Evita 10 trampas" },
-      reachLevel5: { goal: 5, reward: 200, completed: false, progress: 0, desc: "Alcanza nivel 5" }
+      reachLevel5: { goal: 5, reward: 200, completed: false, progress: 0, desc: "Alcanza nivel 5" },
+      earnCoins: { goal: 300, reward: 250, completed: false, progress: 0, desc: "Gana 300 monedas" },
+      hitCombo: { goal: 10, reward: 200, completed: false, progress: 0, desc: "Alcanza combo x10" },
+      defeatBoss: { goal: 1, reward: 500, completed: false, progress: 0, desc: "Derrota un jefe" },
+      playTime: { goal: 300, reward: 300, completed: false, progress: 0, desc: "Juega 5 minutos" }
     };
+
+    // IMÁGENES PARA SKINS
+    const skinImages = {
+      default: 'https://th.bing.com/th/id/R.e4344b249ce6be3b57694e758c30654b?rik=OKahgLPaU25WGQ&riu=http%3a%2f%2fstatic.demilked.com%2fwp-content%2fuploads%2f2018%2f03%2f5aaa1cbf88246-funny-weird-wtf-stock-photos-5-5a3916aed5ceb__700.jpg&ehk=SJvazXrhzImcrWnn%2bK9ftsiUcEkEtul%2bIi%2ftlT0SYWw%3d&risl=&pid=ImgRaw&r=0',
+      alien: 'https://media1.tenor.com/m/tFW57H6ZyUUAAAAd/alien-cat.gif',
+      epic: 'https://media1.tenor.com/m/KdhfuQxbq-cAAAAd/furina-genshin-impact.gif',
+      legendary: 'https://media1.tenor.com/m/x8v50dQkwsAAAAAd/demon-slayer-tanjiro.gif'
+    };
+
 
     // =============================================
     // FUNCIONES DEL JUEGO
@@ -1098,6 +1189,7 @@
         
         switch (tier) {
           case 1:
+            changeSkin('default');
             showEventNotification("¡Skin básica desbloqueada!");
             break;
           case 3:
@@ -1105,12 +1197,35 @@
             showEventNotification("¡+100 monedas!");
             break;
           case 5:
+            changeSkin('epic');
             showEventNotification("¡Skin épica desbloqueada!");
             break;
+          case 7:
+            updateCoins(200);
+            showEventNotification("¡+200 monedas!");
+            break;
           case 10:
-            showEventNotification("¡Cursor dorado desbloqueado!");
             customCursor.style.background = 'gold';
             customCursor.style.borderColor = 'darkgoldenrod';
+            showEventNotification("¡Cursor dorado desbloqueado!");
+            break;
+          case 12:
+            lives++;
+            livesDisplay.textContent = gameMode === 'survival' ? "∞" : "❤️".repeat(lives);
+            showEventNotification("¡+1 Vida Extra!");
+            break;
+          case 15:
+            changeSkin('legendary');
+            showEventNotification("¡Skin legendaria desbloqueada!");
+            break;
+          case 18:
+            updateCoins(500);
+            showEventNotification("¡+500 monedas!");
+            break;
+          case 20:
+            customCursor.style.background = 'linear-gradient(to right, #ff00ff, #00ffff)';
+            customCursor.style.borderColor = 'white';
+            showEventNotification("¡Cursor legendario desbloqueado!");
             break;
         }
         
@@ -1135,8 +1250,9 @@
       });
       document.querySelector(`.skin-option[data-skin="${skin}"]`).classList.add('selected');
       
-      // Aquí podrías cambiar la imagen de los objetivos según la skin seleccionada
-      showEventNotification(`Skin "${skin}" seleccionada`);
+      // Mostrar notificación con el nombre de la skin
+      const skinName = document.querySelector(`.skin-option[data-skin="${skin}"] .skin-name`).textContent;
+      showEventNotification(`Skin "${skinName}" seleccionada`);
     }
 
     // DESBLOQUEAR LOGRO
@@ -1171,7 +1287,7 @@
     }
 
     // ACTUALIZAR MISIONES
-    function updateMissions() {
+   function updateMissions() {
       // Misión de clicks
       if (!dailyMissions.click50.completed) {
         dailyMissions.click50.progress = clicksToday;
@@ -1202,6 +1318,36 @@
         }
       }
       
+      // Misión de monedas
+      if (!dailyMissions.earnCoins.completed) {
+        dailyMissions.earnCoins.progress = coins;
+        if (coins >= dailyMissions.earnCoins.goal) {
+          dailyMissions.earnCoins.completed = true;
+          updateCoins(dailyMissions.earnCoins.reward);
+          showEventNotification("¡Misión completada! +250 monedas");
+        }
+      }
+      
+      // Misión de combo
+      if (!dailyMissions.hitCombo.completed) {
+        if (comboMultiplier >= dailyMissions.hitCombo.goal) {
+          dailyMissions.hitCombo.completed = true;
+          updateCoins(dailyMissions.hitCombo.reward);
+          showEventNotification("¡Misión completada! +200 monedas");
+        }
+      }
+      
+      // Misión de tiempo de juego
+      if (!dailyMissions.playTime.completed) {
+        const playTime = (Date.now() - gameStartTime) / 1000;
+        dailyMissions.playTime.progress = Math.min(playTime, dailyMissions.playTime.goal);
+        if (playTime >= dailyMissions.playTime.goal) {
+          dailyMissions.playTime.completed = true;
+          updateCoins(dailyMissions.playTime.reward);
+          showEventNotification("¡Misión completada! +300 monedas");
+        }
+      }
+      
       updateMissionsDisplay();
     }
 
@@ -1214,9 +1360,11 @@
         missionEl.className = 'mission-item';
         
         const status = mission.completed ? '✅' : '🟡';
+        const completedClass = mission.completed ? 'mission-completed' : '';
+        
         missionEl.innerHTML = `
-          ${status} ${mission.desc} 
-          <span class="mission-progress">(${mission.progress}/${mission.goal})</span>
+          ${status} <span class="${completedClass}">${mission.desc}</span> 
+          <span class="mission-progress">(${Math.min(mission.progress, mission.goal)}/${mission.goal})</span>
         `;
         
         missionsDisplay.appendChild(missionEl);
@@ -1235,12 +1383,38 @@
       return false;
     }
 
+    // CREAR EFECTO DE COMBO
+    function createComboEffect(x, y, text) {
+      const comboEffect = document.createElement('div');
+      comboEffect.className = 'combo-effect';
+      comboEffect.textContent = text;
+      comboEffect.style.left = `${x}px`;
+      comboEffect.style.top = `${y}px`;
+      document.body.appendChild(comboEffect);
+      
+      setTimeout(() => {
+        comboEffect.remove();
+      }, 500);
+    }
+
     // SPAWNEAR OBJETIVOS
-    function spawn(type = "normal") {
+     function spawn(type = "normal") {
       const target = document.createElement("div");
       let points = 1;
       let lifetime = 5000;
       target.classList.add("target");
+
+      // Aplicar clase según la skin actual para objetivos normales
+      if (type === "normal") {
+        if (currentSkin === 'epic') {
+          target.classList.add("epic-target");
+        } else if (currentSkin === 'alien') {
+          target.classList.add("alien-target");
+        } else if (currentSkin === 'legendary') {
+          target.classList.add("epic-target");
+          target.classList.add("alien-target");
+        }
+      }
 
       if (type === "bonus") {
         target.classList.add("bonus");
@@ -1259,13 +1433,15 @@
         points = 0;
         target.dataset.powerup = randomPowerUp;
       } else {
-        target.style.backgroundImage = `url('${imageNormal}')`;
+        // Usar imagen según la skin seleccionada
+        target.style.backgroundImage = `url('${skinImages[currentSkin]}')`;
       }
 
       // OBJETIVOS MÁS PEQUEÑOS EN NIVELES ALTOS
       if (level > 5) {
-        target.style.width = `${110 - level * 2}px`;
-        target.style.height = `${80 - level * 2}px`;
+        const sizeReduction = Math.min(level * 2, 50); // Máximo reducción del 50%
+        target.style.width = `${110 - sizeReduction}px`;
+        target.style.height = `${80 - sizeReduction}px`;
       }
 
       const x = Math.floor(Math.random() * (screenWidth - 120));
@@ -1275,6 +1451,7 @@
       target.style.top = `${y}px`;
 
       target.addEventListener("mouseenter", () => {
+
         // SONIDOS
         if (type === "bonus") {
           document.getElementById("bonus-sound").currentTime = 0;
@@ -1308,6 +1485,10 @@
           comboDisplay.textContent = `COMBO x${comboMultiplier}!`;
           comboDisplay.style.left = `${x}px`;
           comboDisplay.style.top = `${y - 50}px`;
+          
+          // Efecto visual de combo
+          createComboEffect(x + 60, y + 40, `x${comboMultiplier}`);
+          
           setTimeout(() => comboDisplay.textContent = "", 1000);
           
           // Verificar logro de combo
@@ -1322,7 +1503,8 @@
         } else {
           // Aplicar multiplicador de puntos dobles si está activo
           const pointMultiplier = upgrades.doublePoints.active ? 2 : 1;
-          score += points * comboMultiplier * pointMultiplier;
+          const frenzyBonus = frenzyMode ? 2 : 1;
+          score += points * comboMultiplier * pointMultiplier * frenzyBonus;
           updateCoins(points); // Ganar monedas por cada click
           
           if (score < 0) score = 0;
@@ -1361,7 +1543,7 @@
         }
 
         createExplosion(x + 60, y + 40);
-        target.remove();
+        target.remove(); // Eliminar inmediatamente al pasar el mouse
       });
 
       document.body.appendChild(target);
@@ -1371,6 +1553,19 @@
           target.remove();
         }
       }, lifetime);
+    }
+
+    // CREAR EXPLOSIÓN
+    function createExplosion(x, y) {
+      const explosion = document.createElement('div');
+      explosion.className = 'explosion';
+      explosion.style.left = `${x - 50}px`;
+      explosion.style.top = `${y - 50}px`;
+      document.body.appendChild(explosion);
+      
+      setTimeout(() => {
+        explosion.remove();
+      }, 500);
     }
 
     // SPAWNEAR POWER-UPS
@@ -1409,13 +1604,13 @@
 
     // SPAWNEAR JEFE FINAL
     function spawnBoss() {
-      if (level % 5 === 0) {
+      if (level % 50 === 0) { // Jefe cada 50 niveles
         gameRunning = false;
         
         const boss = document.createElement("div");
         boss.className = "boss";
         boss.style.backgroundImage = `url('${imageBoss}')`;
-        boss.dataset.health = 10;
+        boss.dataset.health = 20; // Más salud para el jefe
         
         // Barra de salud del jefe
         const healthBar = document.createElement("div");
@@ -1427,11 +1622,17 @@
         
         boss.addEventListener("click", () => {
           boss.dataset.health--;
-          healthFill.style.width = `${boss.dataset.health * 10}%`;
+          healthFill.style.width = `${boss.dataset.health * 5}%`; // 20 hits para derrotarlo
+          
+          // Efecto visual al golpear
+          boss.style.transform = 'translate(-50%, -50%) scale(1.1)';
+          setTimeout(() => {
+            boss.style.transform = 'translate(-50%, -50%) scale(1)';
+          }, 100);
           
           if (boss.dataset.health <= 0) {
-            score += 50;
-            updateCoins(50);
+            score += 100; // Mayor recompensa por jefe
+            updateCoins(100);
             achievements.bossDefeater.unlocked = true;
             unlockAchievement('bossDefeater');
             boss.remove();
@@ -1523,8 +1724,8 @@
         spawnMovingObstacle();
       }
 
-      // JEFE FINAL CADA 5 NIVELES
-      if (level % 5 === 0) {
+      // JEFE FINAL CADA 50 NIVELES
+      if (level % 50 === 0) {
         spawnBoss();
       }
 
