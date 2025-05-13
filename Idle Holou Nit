@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clicker Knight</title>
+  <title>Clicker Knight - Beta Test</title>
   <style>
     body {
       margin: 0;
@@ -15,19 +15,21 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      overflow: auto;
+      transition: background 1s;
     }
     .game-container {
       background-color: rgba(0, 0, 0, 0.6);
       border-radius: 10px;
       padding: 20px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-      width: 85%;
-      max-width: 700px;
+      width: 90%;
+      max-width: 800px;
       position: relative;
       z-index: 10;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 20px 0;
     }
     h1 {
       margin-bottom: 10px;
@@ -37,8 +39,8 @@
       font-size: 1.8rem;
     }
     #click-image {
-      width: 120px;
-      height: 120px;
+      width: 150px;
+      height: 150px;
       background: url('https://media.tenor.com/hdHxFwuzAPUAAAAC/hollow-knight-the-knight.gif') center/contain no-repeat;
       cursor: pointer;
       transition: transform 0.2s;
@@ -172,6 +174,88 @@
     .massive-helper-btn:hover {
       background: linear-gradient(to bottom, #00acc1, #00838f);
     }
+    .skill-button {
+      background: linear-gradient(to bottom, #ff9800, #f57c00);
+      margin: 5px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+    }
+    .skill-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .skill-cooldown {
+      font-size: 12px;
+      color: #ccc;
+      margin-top: 3px;
+    }
+    .achievement {
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 4px solid #4caf50;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 0 5px 5px 0;
+      display: flex;
+      align-items: center;
+    }
+    .achievement.unlocked {
+      border-left-color: #ffeb3b;
+      background: rgba(255, 235, 59, 0.1);
+    }
+    .achievement-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
+      background-color: #333;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .character-evolution {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 60px;
+      height: 60px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 20;
+    }
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #f00;
+      border-radius: 50%;
+      z-index: 100;
+      animation: confetti-fall 5s linear forwards;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+    .crisis-alert {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 0, 0, 0.7);
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      z-index: 1000;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse {
+      from { background-color: rgba(255, 0, 0, 0.7); }
+      to { background-color: rgba(255, 50, 50, 0.9); }
+    }
     .modal {
       display: none;
       position: fixed;
@@ -229,11 +313,158 @@
       90% { opacity: 1; }
       100% { left: 110%; opacity: 0; }
     }
+    .skill-tree-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .skill-tree {
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .skill-branch {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+    }
+    .skill-node {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      background: #333;
+      border-radius: 50%;
+      margin: 10px;
+      text-align: center;
+      line-height: 80px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+      font-size: 24px;
+    }
+    .skill-node.unlocked {
+      background: #4caf50;
+      box-shadow: 0 0 15px #4caf50;
+    }
+    .skill-node.locked {
+      background: #f44336;
+    }
+    .skill-node.available {
+      background: #ff9800;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ff9800;
+    }
+    .skill-node-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 8px;
+      border-radius: 5px;
+      width: 200px;
+      display: none;
+      z-index: 100;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .skill-node:hover .skill-node-tooltip {
+      display: block;
+    }
+    .skill-node-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #4caf50;
+    }
+    .skill-node-cost {
+      color: #FFC107;
+      font-size: 12px;
+    }
+    .skill-node-requirements {
+      color: #ccc;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    .collectibles-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .collectible {
+      width: 60px;
+      height: 60px;
+      margin: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-size: 24px;
+    }
+    .collectible.unlocked {
+      background-color: #4caf50;
+      box-shadow: 0 0 10px #4caf50;
+    }
+    .collectible-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 8px;
+      border-radius: 5px;
+      width: 200px;
+      display: none;
+      z-index: 100;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .collectible:hover .collectible-tooltip {
+      display: block;
+    }
+    .collectible-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #4caf50;
+    }
+    .collectible-rarity {
+      color: #FFC107;
+      font-size: 12px;
+    }
+    .skill-branch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .skill-branch-line {
+      width: 10px;
+      height: 30px;
+      background: #666;
+      margin: -5px 0;
+    }
   </style>
 </head>
 <body>
   <div class="game-container">
-    <h1>Clicker Knight v1.5</h1>
+    <h1>Clicker Knight - BETA Test 2.0</h1>
+    
+    <!-- Evolución visual del personaje -->
+    <div class="character-evolution" id="character-evolution"></div>
+    
     <div class="stats">
       <p>Monedas: <span id="coins">0</span></p>
       <p>Ganancia por segundo: <span id="cps">0</span></p>
@@ -242,23 +473,150 @@
       <p class="prestige-info hidden">Prestigio: <span id="prestige">0</span></p>
       <p class="prestige-info hidden">Monedas de Prestigio: <span id="prestige-coins">0</span></p>
       <p class="prestige-info hidden">Multiplicador de Prestigio: <span id="prestige-multiplier">1</span>x</p>
+      <p class="prestige-info hidden">Puntos de Habilidad: <span id="skill-points">0</span></p>
     </div>
+    
     <div id="click-image"></div>
+    
+    <!-- Habilidades especiales -->
     <div class="buttons-container">
+      <button class="skill-button" id="click-fury-btn" onclick="activateClickFury()">Furia Clicker (150s)</button>
+      <button class="skill-button" id="golden-rain-btn" onclick="activateGoldenRain()">Lluvia Dorada (150s)</button>
       <button onclick="buyHelper()">Comprar Ayudante (<span id="helper-cost">100</span>)</button>
       <button onclick="buy5Helpers()">Comprar 5 Ayudantes (<span id="helper-5-cost">450</span>)</button>
       <button id="buy10-helpers-btn" class="massive-helper-btn hidden" onclick="buy10Helpers()">Comprar 10 Ayudantes (<span id="helper-10-cost">900</span>)</button>
-      <button id="buy100-helpers-btn" class="massive-helper-btn hidden" onclick="buy100Helpers()">Comprar 100 Ayudantes (<span id="helper-100-cost">8000</span>)</button>
-      <button id="buy1000-helpers-btn" class="massive-helper-btn hidden" onclick="buy1000Helpers()">Comprar 1000 Ayudantes (<span id="helper-1000-cost">70000</span>)</button>
+      <button id="buy100-helpers-btn" class="massive-helper-btn hidden" onclick="buy100Helpers()">Comprar 100 Ayudantes (<span id="helper-100-cost">8.0K</span>)</button>
+      <button id="buy1000-helpers-btn" class="massive-helper-btn hidden" onclick="buy1000Helpers()">Comprar 1000 Ayudantes (<span id="helper-1000-cost">70.0K</span>)</button>
       <button class="helper-upgrade-btn" onclick="upgradeHelper()">Mejorar Ayudantes (<span id="helper-upgrade-cost">500</span>)</button>
       <button onclick="buyAutoClicker()">Comprar Auto Clicker (<span id="auto-clicker-cost">500</span>)</button>
-      <button onclick="upgradeAutoClicker()">Mejorar Auto Clicker (<span id="auto-clicker-upgrade-cost">1000</span>)</button>
+      <button onclick="upgradeAutoClicker()">Mejorar Auto Clicker (<span id="auto-clicker-upgrade-cost">1.0K</span>)</button>
       <button class="prestige-btn" onclick="doPrestige()">Prestigiar</button>
       <button class="shop-btn" onclick="openShop()">Tienda de Prestigio</button>
     </div>
+    
+    <!-- Botones para nuevas mecánicas -->
+    <div class="buttons-container">
+      <button onclick="openSkillTree()">Árbol de Habilidades</button>
+      <button onclick="openAchievements()">Logros</button>
+      <button onclick="openExchangeMarket()">Mercado de Intercambio</button>
+      <button onclick="openCollectibles()">Coleccionables</button>
+    </div>
   </div>
 
-  <!-- Modal de Tienda -->
+  <!-- Modal para el árbol de habilidades -->
+  <div id="skill-tree-modal" class="skill-tree-modal">
+    <div class="skill-tree">
+      <h2>Árbol de Habilidades</h2>
+      <p>Puntos disponibles: <span id="available-skill-points">0</span></p>
+      
+      <div class="skill-branch-container">
+        <h3>Ruta del Click Manual</h3>
+        <div class="skill-node available" onclick="unlockSkill('doubleClick')" data-skill="doubleClick">
+          <div class="skill-node-tooltip">
+            <div class="skill-node-title">Doble Click</div>
+            <div>Cada click cuenta como 2</div>
+            <div class="skill-node-cost">Costo: 1 punto</div>
+          </div>
+          2x
+        </div>
+        <div class="skill-branch-line"></div>
+        <div class="skill-node locked" onclick="unlockSkill('criticalClick')" data-skill="criticalClick">
+          <div class="skill-node-tooltip">
+            <div class="skill-node-title">Click Crítico</div>
+            <div>10% de chance de hacer 10x daño</div>
+            <div class="skill-node-cost">Costo: 3 puntos</div>
+            <div class="skill-node-requirements">Requiere: Doble Click</div>
+          </div>
+          !
+        </div>
+        <div class="skill-branch-line"></div>
+        <div class="skill-node locked" onclick="unlockSkill('clickStorm')" data-skill="clickStorm">
+          <div class="skill-node-tooltip">
+            <div class="skill-node-title">Tormenta de Clicks</div>
+            <div>Los clicks generan pequeños clicks adicionales</div>
+            <div class="skill-node-cost">Costo: 5 puntos</div>
+            <div class="skill-node-requirements">Requiere: Click Crítico</div>
+          </div>
+          ⚡
+        </div>
+      </div>
+      
+      <div class="skill-branch-container">
+        <h3>Ruta de los Ayudantes</h3>
+        <div class="skill-node available" onclick="unlockSkill('helperEfficiency')" data-skill="helperEfficiency">
+          <div class="skill-node-tooltip">
+            <div class="skill-node-title">Eficiencia de Ayudantes</div>
+            <div>Los ayudantes producen 2x más</div>
+            <div class="skill-node-cost">Costo: 2 puntos</div>
+          </div>
+          +
+        </div>
+        <div class="skill-branch-line"></div>
+        <div class="skill-node locked" onclick="unlockSkill('helperArmy')" data-skill="helperArmy">
+          <div class="skill-node-tooltip">
+            <div class="skill-node-title">Ejército de Ayudantes</div>
+            <div>Reduce el costo de ayudantes en 20%</div>
+            <div class="skill-node-cost">Costo: 4 puntos</div>
+            <div class="skill-node-requirements">Requiere: Eficiencia de Ayudantes</div>
+          </div>
+          👥
+        </div>
+        <div class="skill-branch-line"></div>
+        <div class="skill-node locked" onclick="unlockSkill('helperSynergy')" data-skill="helperSynergy">
+          <div class="skill-node-tooltip">
+            <div class="skill-node-title">Sinergia de Ayudantes</div>
+            <div>Cada ayudante aumenta el poder de los otros en 1%</div>
+            <div class="skill-node-cost">Costo: 6 puntos</div>
+            <div class="skill-node-requirements">Requiere: Ejército de Ayudantes</div>
+          </div>
+          ♾️
+        </div>
+      </div>
+      
+      <button onclick="closeSkillTree()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal para logros -->
+  <div id="achievements-modal" class="modal">
+    <div class="modal-content">
+      <h2>Tus Logros</h2>
+      <div id="achievements-list">
+        <!-- Logros se generan dinámicamente -->
+      </div>
+      <button onclick="closeAchievements()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal para mercado de intercambio -->
+  <div id="exchange-modal" class="modal">
+    <div class="modal-content">
+      <h2>Mercado de Intercambio</h2>
+      <div>
+        <p>Monedas: <span id="current-coins">0</span></p>
+        <p>Monedas de Prestigio: <span id="current-prestige-coins">0</span></p>
+        <div>
+          <button onclick="exchangeCoinsToPrestige(1000)">Cambiar 1.0K monedas → 1 moneda prestigio</button>
+          <button onclick="exchangePrestigeToCoins(1)">Cambiar 1 moneda prestigio → 500 monedas</button>
+        </div>
+        <p id="exchange-rate">Tasa actual: 1.0K:1 (cambia diariamente)</p>
+      </div>
+      <button onclick="closeExchangeMarket()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal para coleccionables -->
+  <div id="collectibles-modal" class="modal">
+    <div class="modal-content">
+      <h2>Tus Coleccionables</h2>
+      <div class="collectibles-container" id="collectibles-list">
+        <!-- Coleccionables se generan dinámicamente -->
+      </div>
+      <button onclick="closeCollectibles()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal de Tienda de Prestigio -->
   <div id="shop-modal" class="modal">
     <div class="modal-content">
       <h2>Tienda de Prestigio</h2>
@@ -301,6 +659,8 @@
   <audio id="special-sound" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
   <audio id="bonus-sound" src="https://www.fesliyanstudios.com/play-mp3/401"></audio>
   <audio id="prestige-sound" src="https://www.fesliyanstudios.com/play-mp3/402"></audio>
+  <audio id="skill-sound" src="https://www.fesliyanstudios.com/play-mp3/400"></audio>
+  <audio id="collectible-sound" src="https://www.fesliyanstudios.com/play-mp3/399"></audio>
 
   <script>
     // Variables del juego
@@ -318,7 +678,58 @@
     let prestigeMultiplier = 1;
     let hoverClickEnabled = false;
     let hoverClickInterval;
-    
+    let skillPoints = 0;
+    let totalClicks = 0;
+    let totalPrestiges = 0;
+    let highestHelperCount = 0;
+    let clickFuryCooldown = 0;
+    let goldenRainCooldown = 0;
+    let exchangeRate = 1000;
+    let characterEvolutionStage = 0;
+    let crisisActive = false;
+    let crisisHelperRebellion = false;
+    let crisisTimer = null;
+    let collectedItems = [];
+    let lastPlayedDay = new Date().getDate();
+    let floatingHelpersInterval = null;
+    let bonusImageInterval = null;
+
+    // Configuración de logros
+    const achievementConfig = [
+      { id: 'first_click', name: 'Primer Click', description: 'Haz tu primer click', reward: 10, unlocked: false, effect: null },
+      { id: '100_clicks', name: 'Clicker Novato', description: 'Haz 100 clicks', reward: 50, unlocked: false, effect: null },
+      { id: '1000_clicks', name: 'Clicker Experto', description: 'Haz 1,000 clicks', reward: 100, unlocked: false, effect: { type: 'clickPower', value: 1 } },
+      { id: 'first_prestige', name: 'Primer Prestigio', description: 'Alcanza tu primer prestigio', reward: 200, unlocked: false, effect: null },
+      { id: '10_prestiges', name: 'Maestro del Prestigio', description: 'Alcanza 10 prestigios', reward: 500, unlocked: false, effect: { type: 'prestigeBonus', value: 0.1 } },
+      { id: '100_helpers', name: 'Ejército Pequeño', description: 'Consigue 100 ayudantes', reward: 300, unlocked: false, effect: { type: 'helperPower', value: 1 } },
+      { id: 'easter_egg', name: 'Descubridor de Secretos', description: 'Encuentra un Easter Egg', reward: 1000, unlocked: false, effect: null }
+    ];
+
+    // Configuración del árbol de habilidades
+    const skillTreeConfig = {
+      doubleClick: { name: 'Doble Click', description: 'Cada click cuenta como 2', cost: 1, unlocked: false, requires: [], icon: '2x' },
+      criticalClick: { name: 'Click Crítico', description: '10% de chance de hacer 10x daño', cost: 3, unlocked: false, requires: ['doubleClick'], icon: '!' },
+      clickStorm: { name: 'Tormenta de Clicks', description: 'Los clicks generan pequeños clicks adicionales', cost: 5, unlocked: false, requires: ['criticalClick'], icon: '⚡' },
+      helperEfficiency: { name: 'Eficiencia de Ayudantes', description: 'Los ayudantes producen 2x más', cost: 2, unlocked: false, requires: [], icon: '+' },
+      helperArmy: { name: 'Ejército de Ayudantes', description: 'Reduce el costo de ayudantes en 20%', cost: 4, unlocked: false, requires: ['helperEfficiency'], icon: '👥' },
+      helperSynergy: { name: 'Sinergia de Ayudantes', description: 'Cada ayudante aumenta el poder de los otros en 1%', cost: 6, unlocked: false, requires: ['helperArmy'], icon: '♾️' }
+    };
+
+    // Coleccionables
+    const collectibles = [
+      { id: 'golden_sword', name: 'Espada Dorada', description: 'Encontrado después de 10,000 clicks', rarity: 'raro', icon: '⚔️' },
+      { id: 'mysterious_egg', name: 'Huevo Misterioso', description: 'Aparece aleatoriamente al prestigiar', rarity: 'épico', icon: '🥚' },
+      { id: 'ancient_tome', name: 'Tomo Antiguo', description: 'Desbloqueado al alcanzar Prestigio 10', rarity: 'legendario', icon: '📖' },
+      { id: 'konami_code', name: 'Código Konami', description: 'Secreto descubierto', rarity: 'secreto', icon: '🎮' }
+    ];
+
+    // Crisis aleatorias
+    const crisisEvents = [
+      { name: 'Rebelión de Ayudantes', description: '¡Los ayudantes se rebelan y dejan de trabajar por 30 segundos!', duration: 30, effect: () => { crisisHelperRebellion = true; }, resolve: () => { crisisHelperRebellion = false; helpers = Math.floor(helpers * 1.2); } },
+      { name: 'Fiebre del Oro', description: '¡Las monedas valen doble por 1 minuto!', duration: 60, effect: () => { prestigeMultiplier *= 2; }, resolve: () => { prestigeMultiplier /= 2; } },
+      { name: 'Maldición del Click', description: '¡Los clicks dan la mitad por 45 segundos!', duration: 45, effect: () => { coinsPerClick /= 2; }, resolve: () => { coinsPerClick *= 2; } }
+    ];
+
     // Costos base
     let helperCost = 100;
     let helper5Cost = 450;
@@ -362,136 +773,59 @@
     const buy10HelpersBtn = document.getElementById('buy10-helpers-btn');
     const buy100HelpersBtn = document.getElementById('buy100-helpers-btn');
     const buy1000HelpersBtn = document.getElementById('buy1000-helpers-btn');
+    const clickFuryBtn = document.getElementById('click-fury-btn');
+    const goldenRainBtn = document.getElementById('golden-rain-btn');
 
-    // Imágenes de bonus
-    const bonusImages = [
-      'https://media.tenor.com/ARhkeoyoG0AAAAAM/doro-dorothy.gif',
-      'https://media.tenor.com/jJtTtaMOnNYAAAAM/ryan-gosling-burp.gif',
-      'https://media1.tenor.com/m/vJM3Z8HaScwAAAAC/clap-joe-hendry.gif'
-    ];
-
-    // Recompensas de bonus
-    const bonusRewards = [
-      { type: 'coins', min: 100, max: 10000, multiplier: 1 },
-      { type: 'prestigeCoins', min: 1, max: 5, multiplier: 1 },
-      { type: 'helpers', min: 1, max: 5, multiplier: 1 },
-      { type: 'autoClickerPower', min: 1, max: 3, multiplier: 1 },
-      { type: 'helperPower', min: 1, max: 3, multiplier: 1 }
-    ];
-
-    // Función para calcular el costo de prestigio
-    function calculatePrestigeCost() {
-      return Math.floor(1000 * Math.pow(5, prestige) * (1 + coins / 100000));
-    }
-
-    // Función para calcular la recompensa de prestigio
-    function calculatePrestigeReward() {
-      const baseReward = 50 * Math.pow(2, prestige);
-      const coinsBonus = Math.sqrt(coins) / 100;
-      const multiplier = 1 + permanentUpgrades.prestigeBonus * 0.25;
-      return Math.floor((baseReward + coinsBonus) * multiplier * prestigeMultiplier);
-    }
-
-    // Función para mostrar ayudantes flotantes según la cantidad
-    function spawnRandomHelpers() {
-      if (helpers > 0) {
-        const helpersToShow = Math.min(Math.floor(helpers / 5) + 1, 10);
-        for (let i = 0; i < helpersToShow; i++) {
-          setTimeout(() => {
-            spawnFloatingHelper();
-          }, Math.random() * 5000);
+    // Inicialización del juego
+    function initGame() {
+      updateUI();
+      spawnBubbles();
+      checkAchievements();
+      updateCharacterAppearance();
+      startCrisisTimer();
+      checkDailyExchangeRate();
+      startFloatingHelpers();
+      startBonusImages();
+      
+      // Easter Egg: Secuencia de clicks (arriba, arriba, abajo, abajo, izquierda, derecha, izquierda, derecha, B, A)
+      let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+      let konamiIndex = 0;
+      
+      document.addEventListener('keydown', (e) => {
+        if (e.key === konamiCode[konamiIndex]) {
+          konamiIndex++;
+          if (konamiIndex === konamiCode.length) {
+            unlockEasterEgg();
+            konamiIndex = 0;
+          }
+        } else {
+          konamiIndex = 0;
         }
-      }
-    }
+      });
 
-    // Función para spawnear imágenes de bonus
-    function spawnBonusImage() {
-      if (Math.random() < 0.02) { // 2% de chance de aparecer
-        const bonus = document.createElement('div');
-        bonus.className = 'bonus-image';
-        bonus.style.backgroundImage = `url('${bonusImages[Math.floor(Math.random() * bonusImages.length)]}')`;
-        bonus.style.top = `${Math.random() * 80 + 10}%`;
-        bonus.style.left = '-100px';
-        bonus.onclick = function() {
-          const rewardType = bonusRewards[Math.floor(Math.random() * bonusRewards.length)];
-          let rewardAmount = Math.floor(Math.random() * (rewardType.max - rewardType.min + 1)) + rewardType.min;
-          rewardAmount = Math.floor(rewardAmount * rewardType.multiplier);
-          
-          let message = "";
-          switch(rewardType.type) {
-            case 'coins':
-              coins += rewardAmount;
-              message = `+${formatNumber(rewardAmount)} Monedas!`;
-              break;
-            case 'prestigeCoins':
-              prestigeCoins += rewardAmount;
-              message = `+${rewardAmount} Moneda(s) de Prestigio!`;
-              break;
-            case 'helpers':
-              helpers += rewardAmount;
-              message = `+${rewardAmount} Ayudante(s)!`;
-              for (let i = 0; i < rewardAmount; i++) {
-                spawnFloatingHelper();
-              }
-              break;
-            case 'autoClickerPower':
-              autoClickerPower += rewardAmount;
-              message = `+${rewardAmount} Poder de AutoClicker!`;
-              break;
-            case 'helperPower':
-              helperPower += rewardAmount;
-              message = `+${rewardAmount} Poder de Ayudantes!`;
-              break;
-          }
-          
-          animateClick(message, true);
-          document.getElementById('bonus-sound').play();
-          updateUI();
-          this.remove();
-        };
-        
-        document.body.appendChild(bonus);
-        setTimeout(() => {
-          bonus.style.opacity = '1';
-        }, 100);
-        
-        setTimeout(() => {
-          if (bonus.parentNode) {
-            bonus.style.opacity = '0';
-            setTimeout(() => {
-              if (bonus.parentNode) bonus.remove();
-            }, 500);
-          }
-        }, 10000);
-      }
-    }
-
-    // Función para manejar el hover sobre la imagen principal
-    function setupHoverClick() {
+      // Hover click
       clickImage.addEventListener('mouseenter', () => {
         if (!hoverClickEnabled) return;
         hoverClickInterval = setInterval(() => {
-          const bonus = coinsPerClick + permanentUpgrades.clickPower;
-          coins += bonus * prestigeMultiplier;
-          animateClick(`+${formatNumber(bonus * prestigeMultiplier)}`, false, 'click');
-          updateUI();
+          handleClick();
         }, 200); // 5 clicks por segundo
       });
 
       clickImage.addEventListener('mouseleave', () => {
         clearInterval(hoverClickInterval);
       });
+
+      // Actualizar botones de habilidades
+      updateSkillButtons();
     }
 
-    // Llamar a las funciones periódicamente
-    setInterval(spawnRandomHelpers, 5000);
-    setInterval(spawnBonusImage, 2000);
-    setupHoverClick();
-
-    // Evento de click en la imagen principal
-    clickImage.addEventListener('click', () => {
+    // Función principal de click
+    function handleClick() {
+      totalClicks++;
+      
       let isSpecial = Math.random() < (bonusChance + permanentUpgrades.bonusChance * 0.02);
       let bonus = 0;
+      
       if (isSpecial) {
         helpers++;
         spawnFloatingHelper();
@@ -500,12 +834,458 @@
         updateUI();
         return;
       }
-      bonus = coinsPerClick + permanentUpgrades.clickPower;
-      coins += bonus * prestigeMultiplier;
-      animateClick(`+${formatNumber(bonus * prestigeMultiplier)}`, false, 'click');
+      
+      // Verificar si hay crisis de rebelión
+      if (crisisHelperRebellion) {
+        bonus = (coinsPerClick + permanentUpgrades.clickPower) * prestigeMultiplier * 0.5;
+      } else {
+        bonus = (coinsPerClick + permanentUpgrades.clickPower) * prestigeMultiplier;
+      }
+      
+      // Aplicar habilidades
+      if (skillTreeConfig.doubleClick.unlocked) {
+        bonus *= 2;
+      }
+      
+      if (skillTreeConfig.criticalClick.unlocked && Math.random() < 0.1) {
+        bonus *= 10;
+        animateClick('CRÍTICO!', true);
+      }
+      
+      coins += bonus;
+      animateClick(`+${formatNumber(bonus)}`, false, 'click');
       updateUI();
-    });
+      checkAchievements();
+    }
 
+    clickImage.addEventListener('click', handleClick);
+
+    // Habilidades especiales con cooldown
+    function activateClickFury() {
+      if (clickFuryCooldown > 0) return;
+      
+      coinsPerClick *= 2;
+      document.getElementById('skill-sound').play();
+      animateClick('¡FURIA ACTIVADA!', true);
+      
+      setTimeout(() => {
+        coinsPerClick /= 2;
+        clickFuryCooldown = 150; // 150 segundos de cooldown
+        updateSkillButtons();
+      }, 30000); // 30 segundos de duración
+      
+      updateSkillButtons();
+    }
+
+    function activateGoldenRain() {
+      if (goldenRainCooldown > 0 || prestigeCoins < 5) return;
+      
+      prestigeCoins -= 5;
+      const helpersToAdd = 10 + Math.floor(prestige / 2);
+      helpers += helpersToAdd;
+      document.getElementById('skill-sound').play();
+      animateClick(`+${helpersToAdd} Ayudantes (Lluvia Dorada)`, true);
+      
+      for (let i = 0; i < helpersToAdd; i++) {
+        setTimeout(() => spawnFloatingHelper(), i * 100);
+      }
+      
+      goldenRainCooldown = 150; // 150 segundos de cooldown
+      updateSkillButtons();
+      updateUI();
+    }
+
+    function updateSkillButtons() {
+      clickFuryBtn.disabled = clickFuryCooldown > 0;
+      goldenRainBtn.disabled = goldenRainCooldown > 0 || prestigeCoins < 5;
+      
+      if (clickFuryCooldown > 0) {
+        clickFuryBtn.innerHTML = `Furia Clicker (${clickFuryCooldown}s)`;
+      } else {
+        clickFuryBtn.textContent = 'Furia Clicker (150s)';
+      }
+      
+      if (goldenRainCooldown > 0) {
+        goldenRainBtn.innerHTML = `Lluvia Dorada (${goldenRainCooldown}s)`;
+      } else {
+        goldenRainBtn.textContent = 'Lluvia Dorada (5 PC)';
+      }
+    }
+
+    // Árbol de habilidades mejorado
+    function openSkillTree() {
+      document.getElementById('skill-tree-modal').style.display = 'flex';
+      document.getElementById('available-skill-points').textContent = skillPoints;
+      updateSkillTreeNodes();
+    }
+
+    function closeSkillTree() {
+      document.getElementById('skill-tree-modal').style.display = 'none';
+    }
+
+    function updateSkillTreeNodes() {
+      Object.keys(skillTreeConfig).forEach(skillId => {
+        const skill = skillTreeConfig[skillId];
+        const node = document.querySelector(`.skill-node[data-skill="${skillId}"]`);
+        if (!node) return;
+        
+        // Limpiar clases
+        node.className = 'skill-node';
+        node.classList.remove('unlocked', 'locked', 'available');
+        
+        if (skill.unlocked) {
+          node.classList.add('unlocked');
+        } else if (skillPoints >= skill.cost && skill.requires.every(req => skillTreeConfig[req].unlocked)) {
+          node.classList.add('available');
+        } else {
+          node.classList.add('locked');
+        }
+      });
+    }
+
+    function unlockSkill(skillId) {
+      const skill = skillTreeConfig[skillId];
+      if (!skill || skill.unlocked || skillPoints < skill.cost) return;
+      
+      // Verificar requisitos
+      for (const req of skill.requires) {
+        if (!skillTreeConfig[req].unlocked) return;
+      }
+      
+      skillPoints -= skill.cost;
+      skill.unlocked = true;
+      applySkillEffect(skillId);
+      
+      document.getElementById('skill-sound').play();
+      animateClick(`Habilidad desbloqueada: ${skill.name}`, true);
+      updateSkillTreeNodes();
+      updateUI();
+    }
+
+    function applySkillEffect(skillId) {
+      switch(skillId) {
+        case 'doubleClick':
+          // El efecto ya se aplica en handleClick()
+          break;
+        case 'helperEfficiency':
+          helperPower *= 2;
+          break;
+        case 'helperArmy':
+          // El efecto se aplica al calcular costos
+          break;
+        case 'helperSynergy':
+          // El efecto se aplica en calculateProduction()
+          break;
+      }
+    }
+
+    // Logros
+    function openAchievements() {
+      document.getElementById('achievements-modal').style.display = 'flex';
+      renderAchievements();
+    }
+
+    function closeAchievements() {
+      document.getElementById('achievements-modal').style.display = 'none';
+    }
+
+    function renderAchievements() {
+      const container = document.getElementById('achievements-list');
+      container.innerHTML = '';
+      
+      achievementConfig.forEach(ach => {
+        const div = document.createElement('div');
+        div.className = `achievement ${ach.unlocked ? 'unlocked' : ''}`;
+        
+        div.innerHTML = `
+          <div class="achievement-icon">${ach.unlocked ? '✓' : '?'}</div>
+          <div>
+            <h3>${ach.name}</h3>
+            <p>${ach.description}</p>
+            ${ach.unlocked ? `<p class="achievement-reward">Recompensa: +${formatNumber(ach.reward)} monedas</p>` : ''}
+          </div>
+        `;
+        
+        container.appendChild(div);
+      });
+    }
+
+    function checkAchievements() {
+      achievementConfig.forEach(ach => {
+        if (ach.unlocked) return;
+        
+        let unlock = false;
+        
+        switch(ach.id) {
+          case 'first_click':
+            unlock = totalClicks >= 1;
+            break;
+          case '100_clicks':
+            unlock = totalClicks >= 100;
+            break;
+          case '1000_clicks':
+            unlock = totalClicks >= 1000;
+            break;
+          case 'first_prestige':
+            unlock = prestige >= 1;
+            break;
+          case '10_prestiges':
+            unlock = prestige >= 10;
+            break;
+          case '100_helpers':
+            unlock = highestHelperCount >= 100;
+            break;
+          case 'easter_egg':
+            // Se desbloquea manualmente al encontrar un easter egg
+            break;
+        }
+        
+        if (unlock) {
+          unlockAchievement(ach.id);
+        }
+      });
+    }
+
+    function unlockAchievement(achievementId) {
+      const ach = achievementConfig.find(a => a.id === achievementId);
+      if (!ach || ach.unlocked) return;
+      
+      ach.unlocked = true;
+      coins += ach.reward;
+      
+      if (ach.effect) {
+        applyAchievementEffect(ach.effect);
+      }
+      
+      // Efectos de fiesta al desbloquear logro
+      spawnConfetti(20);
+      animateClick(`Logro desbloqueado: ${ach.name}`, true);
+      
+      updateUI();
+      renderAchievements();
+    }
+
+    function applyAchievementEffect(effect) {
+      switch(effect.type) {
+        case 'clickPower':
+          coinsPerClick += effect.value;
+          break;
+        case 'prestigeBonus':
+          prestigeMultiplier += effect.value;
+          break;
+        case 'helperPower':
+          helperPower += effect.value;
+          break;
+      }
+    }
+
+    // Mercado de intercambio
+    function openExchangeMarket() {
+      document.getElementById('exchange-modal').style.display = 'flex';
+      document.getElementById('current-coins').textContent = formatNumber(coins);
+      document.getElementById('current-prestige-coins').textContent = formatNumber(prestigeCoins);
+      document.getElementById('exchange-rate').textContent = `Tasa actual: ${formatNumber(exchangeRate)}:1 (cambia diariamente)`;
+    }
+
+    function closeExchangeMarket() {
+      document.getElementById('exchange-modal').style.display = 'none';
+    }
+
+    function exchangeCoinsToPrestige(amount) {
+      if (coins >= amount) {
+        coins -= amount;
+        prestigeCoins += 1;
+        updateUI();
+        openExchangeMarket(); // Actualizar la vista
+      }
+    }
+
+    function exchangePrestigeToCoins(amount) {
+      if (prestigeCoins >= amount) {
+        prestigeCoins -= amount;
+        coins += 500;
+        updateUI();
+        openExchangeMarket(); // Actualizar la vista
+      }
+    }
+
+    function checkDailyExchangeRate() {
+      const today = new Date().getDate();
+      if (today !== lastPlayedDay) {
+        // Cambiar la tasa de intercambio (entre 800 y 1200)
+        exchangeRate = 800 + Math.floor(Math.random() * 400);
+        lastPlayedDay = today;
+      }
+    }
+
+    // Coleccionables
+    function openCollectibles() {
+      document.getElementById('collectibles-modal').style.display = 'flex';
+      renderCollectibles();
+    }
+
+    function closeCollectibles() {
+      document.getElementById('collectibles-modal').style.display = 'none';
+    }
+
+    function renderCollectibles() {
+      const container = document.getElementById('collectibles-list');
+      container.innerHTML = '';
+      
+      collectibles.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `collectible ${collectedItems.includes(item.id) ? 'unlocked' : ''}`;
+        div.innerHTML = `
+          ${collectedItems.includes(item.id) ? item.icon : '?'}
+          <div class="collectible-tooltip">
+            <div class="collectible-title">${item.name}</div>
+            <div>${item.description}</div>
+            <div class="collectible-rarity">Rareza: ${item.rarity}</div>
+          </div>
+        `;
+        
+        container.appendChild(div);
+      });
+    }
+
+    function checkForCollectibles() {
+      // 1% de chance de aparecer un coleccionable al hacer prestigio
+      if (prestige > 0 && Math.random() < 0.01 && !collectedItems.includes('mysterious_egg')) {
+        collectedItems.push('mysterious_egg');
+        animateClick('¡Has encontrado un Huevo Misterioso!', true);
+        document.getElementById('collectible-sound').play();
+      }
+      
+      // Coleccionable por 10,000 clicks
+      if (totalClicks >= 10000 && !collectedItems.includes('golden_sword')) {
+        collectedItems.push('golden_sword');
+        animateClick('¡Has encontrado la Espada Dorada!', true);
+        document.getElementById('collectible-sound').play();
+      }
+      
+      // Coleccionable por Prestigio 10
+      if (prestige >= 10 && !collectedItems.includes('ancient_tome')) {
+        collectedItems.push('ancient_tome');
+        animateClick('¡Has obtenido el Tomo Antiguo!', true);
+        document.getElementById('collectible-sound').play();
+      }
+    }
+
+    // Evolución visual del personaje
+    function updateCharacterAppearance() {
+      const charElement = document.getElementById('character-evolution');
+      let characterImage = '';
+      
+      if (prestige >= 20) {
+        characterImage = 'url("https://i.imgur.com/JK7wWQx.png")'; // Dorado
+        characterEvolutionStage = 3;
+      } else if (prestige >= 10) {
+        characterImage = 'url("https://i.imgur.com/8Q3X9ZL.png")'; // Épico
+        characterEvolutionStage = 2;
+      } else if (prestige >= 5) {
+        characterImage = 'url("https://i.imgur.com/4VvX9hT.png")'; // Raro
+        characterEvolutionStage = 1;
+      } else {
+        characterImage = 'url("https://i.imgur.com/hdHxFwu.png")'; // Normal
+        characterEvolutionStage = 0;
+      }
+      
+      charElement.style.backgroundImage = characterImage;
+    }
+
+    // Efectos de fiesta
+    function spawnConfetti(count) {
+      for (let i = 0; i < count; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDuration = `${3 + Math.random() * 4}s`;
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => {
+          confetti.remove();
+        }, 5000);
+      }
+    }
+
+    // Crisis aleatorias
+    function startCrisisTimer() {
+      // Cada 10-20 minutos puede ocurrir una crisis
+      crisisTimer = setTimeout(() => {
+        if (Math.random() < 0.7 && prestige >= 1) { // 70% de probabilidad después del primer prestigio
+          triggerRandomCrisis();
+        }
+        startCrisisTimer();
+      }, (10 + Math.random() * 10) * 60 * 1000);
+    }
+
+    function triggerRandomCrisis() {
+      if (crisisActive) return;
+      
+      const crisis = crisisEvents[Math.floor(Math.random() * crisisEvents.length)];
+      crisisActive = true;
+      
+      // Mostrar alerta
+      const alert = document.createElement('div');
+      alert.className = 'crisis-alert';
+      alert.textContent = `¡CRISIS: ${crisis.name}! ${crisis.description}`;
+      document.body.appendChild(alert);
+      
+      // Aplicar efecto
+      crisis.effect();
+      
+      // Resolver después de la duración
+      setTimeout(() => {
+        crisis.resolve();
+        crisisActive = false;
+        alert.remove();
+        animateClick(`¡Crisis resuelta!`, true);
+        updateUI();
+      }, crisis.duration * 1000);
+    }
+
+    // Easter Eggs
+    function unlockEasterEgg() {
+      // Verificar si ya se desbloqueó
+      if (achievementConfig.find(a => a.id === 'easter_egg').unlocked) return;
+      
+      // Desbloquear logro
+      unlockAchievement('easter_egg');
+      
+      // Añadir coleccionable especial
+      if (!collectedItems.includes('konami_code')) {
+        collectedItems.push('konami_code');
+        document.getElementById('collectible-sound').play();
+      }
+      
+      // Efectos especiales
+      spawnConfetti(100);
+      document.body.style.background = 'linear-gradient(to bottom, #ff0000, #0000ff)';
+      setTimeout(() => {
+        document.body.style.background = 'linear-gradient(to bottom, #1a2980, #26d0ce)';
+      }, 5000);
+      
+      animateClick('¡EASTER EGG DESCUBIERTO!', true);
+    }
+
+    // Prestigio Épico (después de nivel 25)
+    function checkEpicPrestige() {
+      if (prestige >= 25 && !collectedItems.includes('epic_prestige')) {
+        collectedItems.push('epic_prestige');
+        animateClick('¡Has alcanzado el Prestigio Épico!', true);
+        
+        // Beneficios del prestigio épico
+        prestigeMultiplier *= 1.5;
+        helperPower *= 2;
+        skillPoints += 5;
+        
+        spawnConfetti(50);
+        document.getElementById('prestige-sound').play();
+      }
+    }
+
+    // Funciones del juego base (actualizadas)
     function animateClick(text, special = false, type = 'click') {
       const span = document.createElement('span');
       span.classList.add('effect');
@@ -542,6 +1322,51 @@
       setTimeout(() => document.body.removeChild(helper), 10000);
     }
 
+    function startFloatingHelpers() {
+      if (floatingHelpersInterval) clearInterval(floatingHelpersInterval);
+      
+      floatingHelpersInterval = setInterval(() => {
+        if (helpers > 0 && Math.random() < 0.3) { // 30% de probabilidad cada 5 segundos
+          spawnFloatingHelper();
+        }
+      }, 5000);
+    }
+
+    function startBonusImages() {
+      if (bonusImageInterval) clearInterval(bonusImageInterval);
+      
+      bonusImageInterval = setInterval(() => {
+        if (Math.random() < 0.05) { // 5% de probabilidad cada 10 segundos
+          showBonusImage();
+        }
+      }, 10000);
+    }
+
+    function showBonusImage() {
+      const bonus = document.createElement('div');
+      bonus.className = 'bonus-image';
+      bonus.style.top = `${Math.random() * 80 + 10}%`;
+      bonus.style.backgroundImage = 'url("https://media.tenor.com/hdHxFwuzAPUAAAAC/hollow-knight-the-knight.gif")';
+      bonus.style.opacity = '0';
+      document.body.appendChild(bonus);
+      
+      setTimeout(() => {
+        bonus.style.opacity = '1';
+      }, 100);
+      
+      bonus.addEventListener('click', () => {
+        coins += 100 * prestigeMultiplier;
+        animateClick(`+${formatNumber(100 * prestigeMultiplier)} Bonus!`, true);
+        document.getElementById('bonus-sound').play();
+        bonus.remove();
+        updateUI();
+      });
+      
+      setTimeout(() => {
+        bonus.remove();
+      }, 5000);
+    }
+
     function spawnBubbles() {
       setInterval(() => {
         const bubble = document.createElement('div');
@@ -558,9 +1383,10 @@
     }
 
     function buyHelper() {
-      if (coins >= helperCost) {
+      const cost = skillTreeConfig.helperArmy.unlocked ? helperCost * 0.8 : helperCost;
+      if (coins >= cost) {
         helpers++;
-        coins -= helperCost;
+        coins -= cost;
         helperCost = Math.floor(helperCost * 1.15);
         helper5Cost = Math.floor(helperCost * 4.5);
         helper10Cost = Math.floor(helperCost * 9);
@@ -570,10 +1396,11 @@
     }
 
     function buy5Helpers() {
-      if (coins >= helper5Cost) {
+      const cost = skillTreeConfig.helperArmy.unlocked ? helper5Cost * 0.8 : helper5Cost;
+      if (coins >= cost) {
         const helpersToAdd = 5;
         helpers += helpersToAdd;
-        coins -= helper5Cost;
+        coins -= cost;
         helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
         helper5Cost = Math.floor(helperCost * 4.5);
         helper10Cost = Math.floor(helperCost * 9);
@@ -585,10 +1412,11 @@
     }
 
     function buy10Helpers() {
-      if (coins >= helper10Cost) {
+      const cost = skillTreeConfig.helperArmy.unlocked ? helper10Cost * 0.8 : helper10Cost;
+      if (coins >= cost) {
         const helpersToAdd = 10;
         helpers += helpersToAdd;
-        coins -= helper10Cost;
+        coins -= cost;
         helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
         helper5Cost = Math.floor(helperCost * 4.5);
         helper10Cost = Math.floor(helperCost * 9);
@@ -600,10 +1428,11 @@
     }
 
     function buy100Helpers() {
-      if (coins >= helper100Cost) {
+      const cost = skillTreeConfig.helperArmy.unlocked ? helper100Cost * 0.8 : helper100Cost;
+      if (coins >= cost) {
         const helpersToAdd = 100;
         helpers += helpersToAdd;
-        coins -= helper100Cost;
+        coins -= cost;
         helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
         helper5Cost = Math.floor(helperCost * 4.5);
         helper10Cost = Math.floor(helperCost * 9);
@@ -616,10 +1445,11 @@
     }
 
     function buy1000Helpers() {
-      if (coins >= helper1000Cost) {
+      const cost = skillTreeConfig.helperArmy.unlocked ? helper1000Cost * 0.8 : helper1000Cost;
+      if (coins >= cost) {
         const helpersToAdd = 1000;
         helpers += helpersToAdd;
-        coins -= helper1000Cost;
+        coins -= cost;
         helperCost = Math.floor(helperCost * Math.pow(1.15, helpersToAdd));
         helper5Cost = Math.floor(helperCost * 4.5);
         helper10Cost = Math.floor(helperCost * 9);
@@ -675,14 +1505,21 @@
       if (coins >= prestigeCost) {
         const reward = calculatePrestigeReward();
         
+        totalPrestiges++;
         coins = 0;
         helpers = 0;
-        helperPower = 1;
+        helperPower = 1 + permanentUpgrades.helperPower * 5;
         autoClickers = 0;
         autoClickerPower = 1;
         prestige++;
         prestigeCoins += reward;
         prestigeMultiplier = 1 + prestige * 0.5;
+        
+        // Otorgar puntos de habilidad cada 5 prestigios
+        if (prestige % 5 === 0) {
+          skillPoints++;
+          animateClick(`+1 Punto de Habilidad!`, true);
+        }
         
         // Resetear costos
         helperCost = 100;
@@ -701,19 +1538,42 @@
         // Activar botones masivos según progreso
         checkMassiveButtons();
         
+        // Actualizar apariencia del personaje
+        updateCharacterAppearance();
+        
+        // Verificar coleccionables
+        checkForCollectibles();
+        
+        // Verificar prestigio épico
+        checkEpicPrestige();
+        
         document.getElementById('prestige-sound').play();
-        animateClick(`Prestigio ${prestige}! +${reward} Monedas de Prestigio`, true);
+        animateClick(`Prestigio ${prestige}! +${formatNumber(reward)} Monedas de Prestigio`, true);
         updateUI();
+        
+        // Habilitar hover click después del primer prestigio
+        if (prestige === 1) {
+          hoverClickEnabled = true;
+        }
       } else {
         alert(`Necesitas ${formatNumber(prestigeCost)} monedas para prestigiar.`);
       }
     }
 
-    // Función para verificar qué botones masivos mostrar
+    function calculatePrestigeCost() {
+      return Math.floor(1000 * Math.pow(5, prestige) * (1 + coins / 100000));
+    }
+
+    function calculatePrestigeReward() {
+      const baseReward = 50 * Math.pow(2, prestige);
+      const coinsBonus = Math.sqrt(coins) / 100;
+      const multiplier = 1 + permanentUpgrades.prestigeBonus * 0.25;
+      return Math.floor((baseReward + coinsBonus) * multiplier * prestigeMultiplier);
+    }
+
     function checkMassiveButtons() {
       if (prestige >= 1 && coins >= 5000) {
         buy10HelpersBtn.classList.remove('hidden');
-        hoverClickEnabled = true;
       }
       
       if (prestige >= 5 && coins >= 50000) {
@@ -725,7 +1585,7 @@
       }
     }
 
-    // Funciones de la tienda
+    // Funciones de la tienda de prestigio
     function openShop() {
       // Actualizar niveles en la tienda
       document.getElementById('click-power-level').textContent = permanentUpgrades.clickPower;
@@ -750,61 +1610,105 @@
         animateClick(`Mejora comprada!`, true);
         openShop(); // Actualizar la tienda
       } else {
-        alert(`No tienes suficientes monedas de prestigio. Necesitas ${cost}.`);
+        alert(`No tienes suficientes monedas de prestigio. Necesitas ${formatNumber(cost)}.`);
       }
+    }
+
+    function calculateProduction() {
+      let helperProduction = helpers * helperPower;
+      
+      // Aplicar sinergia de ayudantes si está desbloqueada
+      if (skillTreeConfig.helperSynergy.unlocked) {
+        helperProduction *= 1 + (helpers * 0.01);
+      }
+      
+      const clickerProduction = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
+      
+      return (cps + helperProduction + clickerProduction) * prestigeMultiplier;
     }
 
     function updateUI() {
       coinsEl.textContent = formatNumber(coins);
       
-      const totalHelperPower = helperPower + permanentUpgrades.helperPower * 5;
-      const totalClickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
-      const totalCPS = (cps + (helpers * totalHelperPower) + totalClickerPower) * prestigeMultiplier;
-      
+      const totalCPS = calculateProduction();
       cpsEl.textContent = formatNumber(totalCPS);
-      helpersEl.textContent = formatNumber(helpers);
-      helperPowerEl.textContent = totalHelperPower;
-      autoClickersEl.textContent = autoClickers;
-      autoClickerPowerEl.textContent = autoClickerPower;
-      prestigeEl.textContent = prestige;
-      prestigeCoinsEl.textContent = prestigeCoins;
-      prestigeMultiplierEl.textContent = prestigeMultiplier.toFixed(1);
       
-      // Actualizar costos en los botones
-      helperCostEl.textContent = helperCost;
-      helper5CostEl.textContent = helper5Cost;
-      helper10CostEl.textContent = helper10Cost;
-      helper100CostEl.textContent = helper100Cost;
-      helper1000CostEl.textContent = helper1000Cost;
-      helperUpgradeCostEl.textContent = helperUpgradeCost;
-      autoClickerCostEl.textContent = autoClickerCost;
-      autoClickerUpgradeCostEl.textContent = autoClickerUpgradeCost;
+      helpersEl.textContent = formatNumber(helpers);
+      helperPowerEl.textContent = helperPower + permanentUpgrades.helperPower * 5;
+      autoClickersEl.textContent = formatNumber(autoClickers);
+      autoClickerPowerEl.textContent = formatNumber(autoClickerPower);
+      prestigeEl.textContent = formatNumber(prestige);
+      prestigeCoinsEl.textContent = formatNumber(prestigeCoins);
+      prestigeMultiplierEl.textContent = prestigeMultiplier.toFixed(1);
+      document.getElementById('skill-points').textContent = formatNumber(skillPoints);
+      
+      // Actualizar costos en los botones con formato
+      const helperCostMultiplier = skillTreeConfig.helperArmy.unlocked ? 0.8 : 1;
+      helperCostEl.textContent = formatNumber(Math.floor(helperCost * helperCostMultiplier));
+      helper5CostEl.textContent = formatNumber(Math.floor(helper5Cost * helperCostMultiplier));
+      helper10CostEl.textContent = formatNumber(Math.floor(helper10Cost * helperCostMultiplier));
+      helper100CostEl.textContent = formatNumber(Math.floor(helper100Cost * helperCostMultiplier));
+      helper1000CostEl.textContent = formatNumber(Math.floor(helper1000Cost * helperCostMultiplier));
+      helperUpgradeCostEl.textContent = formatNumber(helperUpgradeCost);
+      autoClickerCostEl.textContent = formatNumber(autoClickerCost);
+      autoClickerUpgradeCostEl.textContent = formatNumber(autoClickerUpgradeCost);
       
       // Verificar botones masivos
       checkMassiveButtons();
+      
+      // Actualizar ayudantes máximos
+      if (helpers > highestHelperCount) {
+        highestHelperCount = helpers;
+        checkAchievements();
+      }
     }
 
     function gameLoop() {
-      const totalHelperPower = helperPower + permanentUpgrades.helperPower * 5;
-      const totalClickerPower = autoClickers * autoClickerPower * (1000 / (autoClickerSpeed * (1 - permanentUpgrades.autoClickerSpeed * 0.5)));
-      coins += (cps + (helpers * totalHelperPower) + totalClickerPower) * prestigeMultiplier;
+      if (!crisisHelperRebellion) {
+        coins += calculateProduction() / 10; // Dividido por 10 porque se ejecuta 10 veces por segundo
+      }
+      
+      // Actualizar cooldowns
+      if (clickFuryCooldown > 0) {
+        clickFuryCooldown -= 0.1;
+        if (clickFuryCooldown <= 0) {
+          clickFuryCooldown = 0;
+          updateSkillButtons();
+        }
+      }
+      
+      if (goldenRainCooldown > 0) {
+        goldenRainCooldown -= 0.1;
+        if (goldenRainCooldown <= 0) {
+          goldenRainCooldown = 0;
+          updateSkillButtons();
+        }
+      }
+      
       updateUI();
     }
 
-    setInterval(gameLoop, 1000);
-    spawnBubbles();
-
     function formatNumber(num) {
       if (typeof num !== 'number') num = parseFloat(num) || 0;
-      const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "UDc", "DDc"];
       if (num < 1000) return Math.floor(num).toString();
+      
+      const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "UDc", "DDc"];
       const tier = Math.floor(Math.log10(num) / 3) || 0;
       const suffix = suffixes[tier];
       const scale = Math.pow(10, tier * 3);
       const scaled = num / scale;
-      return scaled.toFixed(2) + suffix;
+      
+      // Formatear con 1 decimal si es menor a 10, de lo contrario sin decimales
+      if (scaled < 10) {
+        return scaled.toFixed(1) + suffix;
+      } else {
+        return Math.floor(scaled) + suffix;
+      }
     }
+
+    // Iniciar el juego
+    setInterval(gameLoop, 100);
+    initGame();
   </script>
 </body>
-</html>
 </html>
