@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[R/Z]</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&display=swap');
+
+    :root {
+      --bg: #0f0f0f;
+      --fg: #ffffff;
+      --accent: #00ffe7;
+      --wrong: #ff2e63;
+      --correct: #6fff57;
+      --life: #ff4757;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background-color: var(--bg);
+      color: var(--fg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    #header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    #stats {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #lives {
+      display: flex;
+      gap: 5px;
+    }
+
+    .life {
+      width: 20px;
+      height: 20px;
+      background-color: var(--life);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    #timer-container {
+      width: 200px;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    #timer-bar {
+      height: 100%;
+      width: 100%;
+      background-color: var(--accent);
+      transition: width 0.1s linear, background-color 0.3s ease;
+    }
+
+    #grid {
+      display: grid;
+      gap: 10px;
+      margin: 20px;
+      transition: all 0.5s ease;
+    }
+
+    .tile {
+      width: 60px;
+      height: 60px;
+      background-color: grey;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .tile:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 10px rgba(0, 255, 231, 0.3);
+    }
+
+    .tile.correct {
+      animation: pulse 0.5s ease, glow 1s ease;
+    }
+
+    .tile.wrong {
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes glow {
+      0% { box-shadow: 0 0 5px var(--correct); }
+      50% { box-shadow: 0 0 20px var(--correct); }
+      100% { box-shadow: 0 0 5px var(--correct); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+
+    #scoreboard, #records {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #records table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 80%;
+    }
+
+    #records th, #records td {
+      padding: 8px;
+      border: 1px solid var(--accent);
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #namePrompt {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      transition: opacity 0.4s ease;
+    }
+
+    #gameOver {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    input[type="text"] {
+      font-size: 1.2em;
+      padding: 0.5em;
+      border-radius: 5px;
+      border: none;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--fg);
+      text-align: center;
+    }
+
+    .btn {
+      background-color: var(--accent);
+      border: none;
+      padding: 10px 20px;
+      color: black;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 255, 231, 0.5);
+    }
+
+    #toggleTheme {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--accent);
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    #toggleTheme:hover {
+      transform: scale(1.05);
+    }
+
+    audio { display: none; }
+  </style>
+</head>
+<body>
+  <button id="toggleTheme">l i [G] h t/ d a [R] k</button>
+  <div id="namePrompt">
+    <h2> w e l c o m e .</h2>
+    <p>a [R] e     y  o  u     [R]  e  a  d  y  ?</p>
+    <input type="text" id="playerName" placeholder=" n a [M] e " />
+    <button class="btn" onclick="startGame()">p  l  [A]  y .</button>
+  </div>
+
+  <div id="gameOver" class="hidden">
+    <h2> g a m e     o v e [R] .</h2>
+    <p> y [O] u r   s [C] o r e : <span id="finalScore">0</span></p>
+    <p> m [A] x   l e v [E] l : <span id="finalLevel">1</span></p>
+    <button class="btn" onclick="resetGame()">p l a y     a g a i [N] .</button>
+  </div>
+
+  <div id="header">
+    <h1> [R/Z] </h1>
+  </div>
+
+  <div id="stats">
+    <div class="stat">
+      <span> l e [V] e l </span>
+      <span id="level">_1_</span>
+    </div>
+    <div class="stat">
+      <span> p o i [N] t s </span>
+      <span id="score"> -0- </span>
+    </div>
+    <div class="stat">
+      <span> l i [F] e s </span>
+      <div id="lives"></div>
+    </div>
+  </div>
+
+  <div id="timer-container">
+    <div id="timer-bar"></div>
+  </div>
+
+  <div id="grid"></div>
+
+  <div id="records" class="hidden">
+    <h2> h i g h   s c o r e [S] </h2>
+    <table>
+      <thead>
+        <tr><th> p l [A] y e r </th><th> s [C] o r e </th><th> m a x  l e v e [L] </th></tr>
+      </thead>
+      <tbody id="recordList"></tbody>
+    </table>
+    <button class="btn" onclick="hideRecords()"> b a c [K] </button>
+  </div>
+
+  <audio id="bgMusic" src="https://freesound.org/data/previews/341/341695_3248244-lq.mp3" loop></audio>
+  <audio id="sfxCorrect" src="https://freesound.org/data/previews/250/250629_4486188-lq.mp3"></audio>
+  <audio id="sfxWrong" src="https://freesound.org/data/previews/522/522202_11593447-lq.mp3"></audio>
+  <audio id="sfxGameOver" src="https://freesound.org/data/previews/258/258677_4942440-lq.mp3"></audio>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const scoreEl = document.getElementById('score');
+    const levelEl = document.getElementById('level');
+    const namePrompt = document.getElementById('namePrompt');
+    const playerNameInput = document.getElementById('playerName');
+    const recordList = document.getElementById('recordList');
+    const recordsDiv = document.getElementById('records');
+    const livesContainer = document.getElementById('lives');
+    const timerBar = document.getElementById('timer-bar');
+    const gameOverDiv = document.getElementById('gameOver');
+    const finalScoreEl = document.getElementById('finalScore');
+    const finalLevelEl = document.getElementById('finalLevel');
+    
+    const sfxCorrect = document.getElementById('sfxCorrect');
+    const sfxWrong = document.getElementById('sfxWrong');
+    const sfxGameOver = document.getElementById('sfxGameOver');
+    const bgMusic = document.getElementById('bgMusic');
+    
+    let playerName = '';
+    let level = 1;
+    let score = 0;
+    let lives = 3;
+    let correctIndex;
+    let timer;
+    let timeLeft;
+    let timerInterval;
+
+    // Configuración del temporizador por niveles
+    const getTimeForLevel = (level) => {
+      if (level < 20) return 60;
+      else if (level < 50) return 45;
+      else if (level < 100) return 30;
+      else if (level < 300) return 15;
+      else if (level < 500) return 10;
+      else return 5;
+    };
+
+    // Inicializar el juego
+    function initGame() {
+      playerName = '';
+      level = 1;
+      score = 0;
+      lives = 3;
+      updateLivesDisplay();
+      scoreEl.textContent = `-${score}-`;
+      levelEl.textContent = `_${level}_`;
+    }
+
+    // Actualizar visualización de vidas
+    function updateLivesDisplay() {
+      livesContainer.innerHTML = '';
+      for (let i = 0; i < lives; i++) {
+        const life = document.createElement('div');
+        life.className = 'life';
+        livesContainer.appendChild(life);
+      }
+    }
+
+    // Configurar temporizador
+    function setupTimer() {
+      clearInterval(timerInterval);
+      timeLeft = getTimeForLevel(level);
+      updateTimerDisplay();
+      
+      timerInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+          timeUp();
+        }
+      }, 100);
+    }
+
+    // Actualizar visualización del temporizador
+    function updateTimerDisplay() {
+      const totalTime = getTimeForLevel(level);
+      const percentage = (timeLeft / totalTime) * 100;
+      timerBar.style.width = `${percentage}%`;
+      
+      // Cambiar color según el tiempo restante
+      if (percentage < 20) {
+        timerBar.style.backgroundColor = '#ff4757';
+      } else if (percentage < 50) {
+        timerBar.style.backgroundColor = '#ffa502';
+      } else {
+        timerBar.style.backgroundColor = 'var(--accent)';
+      }
+    }
+
+    // Cuando se acaba el tiempo
+    function timeUp() {
+      clearInterval(timerInterval);
+      loseLife();
+    }
+
+    // Perder una vida
+    function loseLife() {
+      lives--;
+      updateLivesDisplay();
+      vibrate(300);
+      sfxWrong.play();
+      
+      if (lives <= 0) {
+        gameOver();
+      } else {
+        drawGrid();
+      }
+    }
+
+    // Game over
+    function gameOver() {
+      clearInterval(timerInterval);
+      sfxGameOver.play();
+      bgMusic.pause();
+      saveRecord();
+      finalScoreEl.textContent = score;
+      finalLevelEl.textContent = level;
+      gameOverDiv.style.display = 'flex';
+    }
+
+    // Reiniciar juego
+    function resetGame() {
+      gameOverDiv.style.display = 'none';
+      initGame();
+      startGame();
+    }
+
+    // Mostrar records
+    function showRecords() {
+      recordsDiv.classList.remove("hidden");
+      const records = JSON.parse(localStorage.getItem("records") || "[]");
+      recordList.innerHTML = records.map(r => `<tr><td>${r.name}</td><td>${r.score}</td><td>${r.level}</td></tr>`).join('');
+    }
+
+    // Ocultar records
+    function hideRecords() {
+      recordsDiv.classList.add("hidden");
+    }
+
+    // Guardar record
+    function saveRecord() {
+      const records = JSON.parse(localStorage.getItem("records") || "[]");
+      records.push({ name: playerName, score, level });
+      records.sort((a, b) => b.score - a.score || b.level - a.level);
+      localStorage.setItem("records", JSON.stringify(records.slice(0, 10)));
+    }
+
+    // Vibrar
+    function vibrate(ms = 100) {
+      if (navigator.vibrate) navigator.vibrate(ms);
+    }
+
+    // Tamaño de la grilla según nivel
+    function getGridSize(level) {
+      if (level < 10) return 3;
+      else if (level < 20) return 4;
+      else if (level < 30) return 5;
+      else if (level < 40) return 6;
+      else return 7;
+    }
+
+    // Generar colores con dificultad progresiva
+    function getColors(level) {
+      const base = Math.floor(Math.random() * 360);
+      let saturation = 80;
+      let lightness = 50;
+      let difference = 10; // Diferencia inicial entre colores
+      
+      // Reducir diferencia según nivel para hacerlo más difícil
+      if (level > 10) difference = 8;
+      if (level > 20) difference = 6;
+      if (level > 30) difference = 5;
+      if (level > 50) difference = 4;
+      if (level > 75) difference = 3;
+      if (level > 100) difference = 2;
+      if (level > 150) difference = 1.5;
+      if (level > 200) difference = 1;
+      
+      return [
+        `hsl(${base}, ${saturation}%, ${lightness}%)`,
+        `hsl(${base}, ${saturation}%, ${lightness + difference}%)`
+      ];
+    }
+
+    // Dibujar grilla
+    function drawGrid() {
+      grid.innerHTML = '';
+      const size = getGridSize(level);
+      grid.style.gridTemplateColumns = `repeat(${size}, 60px)`;
+      const tiles = size * size;
+      const [baseColor, oddColor] = getColors(level);
+      correctIndex = Math.floor(Math.random() * tiles);
+      
+      for (let i = 0; i < tiles; i++) {
+        const div = document.createElement('div');
+        div.className = 'tile';
+        div.style.backgroundColor = (i === correctIndex) ? oddColor : baseColor;
+        div.onclick = () => handleClick(i);
+        grid.appendChild(div);
+      }
+      
+      setupTimer();
+    }
+
+    // Manejar clic en un tile
+    function handleClick(i) {
+      const tile = grid.children[i];
+      
+      if (i === correctIndex) {
+        // Acierto
+        tile.classList.add('correct');
+        score += level; // Puntos basados en nivel
+        level++;
+        scoreEl.textContent = `-${score}-`;
+        levelEl.textContent = `_${level}_`;
+        sfxCorrect.play();
+        vibrate(100);
+        
+        setTimeout(() => {
+          drawGrid();
+        }, 500);
+      } else {
+        // Error
+        tile.classList.add('wrong');
+        vibrate(300);
+        sfxWrong.play();
+        loseLife();
+      }
+    }
+
+    // Cambiar tema
+    const toggleTheme = document.getElementById("toggleTheme");
+    toggleTheme.onclick = () => {
+      document.body.classList.toggle("light");
+      if (document.body.classList.contains("light")) {
+        document.documentElement.style.setProperty('--bg', '#ffffff');
+        document.documentElement.style.setProperty('--fg', '#000000');
+      } else {
+        document.documentElement.style.setProperty('--bg', '#0f0f0f');
+        document.documentElement.style.setProperty('--fg', '#ffffff');
+      }
+    };
+
+    // Iniciar juego
+    function startGame() {
+      playerName = playerNameInput.value.trim() || "Anónimo";
+      namePrompt.style.display = "none";
+      initGame();
+      bgMusic.volume = 0.4;
+      bgMusic.play();
+      drawGrid();
+    }
+
+    // Mostrar prompt al cargar
+    window.onload = function() {
+      namePrompt.style.display = "flex";
+    };
+  </script>
+</body>
+</html>
